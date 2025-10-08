@@ -431,6 +431,369 @@
                 height: 70px;
             }
         }
+
+        /* Mobile-Friendly Inventory System */
+        #inventoryPanel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 90vw;
+            max-width: 400px;
+            height: 60vh;
+            max-height: 500px;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #4a90e2;
+            border-radius: 12px;
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        #inventoryPanel.show {
+            display: flex;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .inventory-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(74, 144, 226, 0.2);
+            border-radius: 10px 10px 0 0;
+            color: white;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.2s ease;
+        }
+
+        .close-btn:hover, .close-btn:active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            padding: 16px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .inventory-slot {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #333;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 60px;
+            touch-action: manipulation;
+        }
+
+        .inventory-slot:hover, .inventory-slot:active {
+            border-color: #4a90e2;
+            background: rgba(74, 144, 226, 0.2);
+            transform: scale(1.05);
+        }
+
+        .inventory-slot.has-item {
+            border-color: #2ed573;
+            background: rgba(46, 213, 115, 0.1);
+        }
+
+        .item-icon {
+            font-size: 24px;
+            pointer-events: none;
+        }
+
+        .item-quantity {
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 10px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            min-width: 12px;
+            text-align: center;
+        }
+
+        /* Mini-Map System */
+        #miniMap {
+            position: fixed;
+            top: 8px;
+            right: 140px;
+            width: 120px;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #4a90e2;
+            border-radius: 8px;
+            z-index: 15;
+            overflow: hidden;
+            display: block;
+        }
+
+        #miniMapCanvas {
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        /* Settings Menu */
+        #settingsPanel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 90vw;
+            max-width: 350px;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #4a90e2;
+            border-radius: 12px;
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+            max-height: 70vh;
+        }
+
+        #settingsPanel.show {
+            display: flex;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .settings-content {
+            padding: 16px;
+            color: white;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .setting-group {
+            margin-bottom: 20px;
+        }
+
+        .setting-group h3 {
+            color: #4a90e2;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-toggle {
+            width: 48px;
+            height: 24px;
+            background: #333;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .setting-toggle.active {
+            background: #4a90e2;
+        }
+
+        .setting-toggle::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+        }
+
+        .setting-toggle.active::after {
+            transform: translateX(24px);
+        }
+
+        .setting-slider {
+            width: 100px;
+            height: 4px;
+            background: #333;
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .setting-slider-fill {
+            height: 100%;
+            background: #4a90e2;
+            border-radius: 2px;
+            width: 50%;
+            position: relative;
+        }
+
+        .setting-slider-thumb {
+            position: absolute;
+            right: -6px;
+            top: -4px;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Enhanced Chat System */
+        .chat-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px 4px 0 0;
+            overflow: hidden;
+        }
+
+        .chat-tab {
+            flex: 1;
+            padding: 4px 8px;
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 9px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chat-tab.active {
+            background: rgba(74, 144, 226, 0.3);
+            color: white;
+        }
+
+        /* UI Toggle Buttons */
+        .ui-toggle-btn {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #4a90e2;
+            border-radius: 50%;
+            color: white;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 20;
+            transition: all 0.2s ease;
+            touch-action: manipulation;
+        }
+
+        .ui-toggle-btn:hover, .ui-toggle-btn:active {
+            background: rgba(74, 144, 226, 0.8);
+            transform: scale(1.1);
+        }
+
+        #inventoryBtn {
+            top: 60px;
+            right: 8px;
+        }
+
+        #settingsBtn {
+            top: 110px;
+            right: 8px;
+        }
+
+        #guildBtn {
+            top: 160px;
+            right: 8px;
+        }
+
+        /* Guild Panel */
+        #guildPanel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 90vw;
+            max-width: 450px;
+            height: 70vh;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #ffd700;
+            border-radius: 12px;
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        #guildPanel.show {
+            display: flex;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .guild-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 10px 10px 0 0;
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .guild-content {
+            padding: 16px;
+            color: white;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .guild-member {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .member-status {
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            background: rgba(46, 213, 115, 0.3);
+            color: #2ed573;
+        }
+
+        .member-status.offline {
+            background: rgba(255, 71, 87, 0.3);
+            color: #ff4757;
+        }
     </style>
 </head>
 <body>
@@ -477,10 +840,140 @@
             </div>
         </div>
 
-        <!-- Chat Panel -->
+        <!-- Enhanced Chat Panel -->
         <div id="chatPanel">
+            <div class="chat-tabs">
+                <button class="chat-tab active" data-tab="general">Generale</button>
+                <button class="chat-tab" data-tab="guild">Guild</button>
+                <button class="chat-tab" data-tab="system">Sistema</button>
+            </div>
             <div id="chatMessages"></div>
             <input type="text" id="chatInput" placeholder="Premi Enter per scrivere...">
+        </div>
+
+        <!-- Mini Map -->
+        <div id="miniMap">
+            <canvas id="miniMapCanvas" width="120" height="120"></canvas>
+        </div>
+    </div>
+
+    <!-- UI Toggle Buttons -->
+    <div class="ui-toggle-btn" id="inventoryBtn" title="Inventario (I)">🎒</div>
+    <div class="ui-toggle-btn" id="settingsBtn" title="Impostazioni (Esc)">⚙️</div>
+    <div class="ui-toggle-btn" id="guildBtn" title="Guild (G)">👑</div>
+
+    <!-- Mobile-Friendly Inventory Panel -->
+    <div id="inventoryPanel">
+        <div class="inventory-header">
+            <span>Inventario</span>
+            <button class="close-btn" onclick="closeInventory()">×</button>
+        </div>
+        <div class="inventory-grid" id="inventoryGrid">
+            <!-- Inventory slots will be generated dynamically -->
+        </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div id="settingsPanel">
+        <div class="inventory-header">
+            <span>Impostazioni</span>
+            <button class="close-btn" onclick="closeSettings()">×</button>
+        </div>
+        <div class="settings-content">
+            <div class="setting-group">
+                <h3>Controlli</h3>
+                <div class="setting-item">
+                    <span>Vibrazione</span>
+                    <div class="setting-toggle active" id="vibrationToggle"></div>
+                </div>
+                <div class="setting-item">
+                    <span>Auto-attacco</span>
+                    <div class="setting-toggle active" id="autoAttackToggle"></div>
+                </div>
+                <div class="setting-item">
+                    <span>Dimensione Joystick</span>
+                    <div class="setting-slider" id="joystickSizeSlider">
+                        <div class="setting-slider-fill">
+                            <div class="setting-slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <h3>Interfaccia</h3>
+                <div class="setting-item">
+                    <span>Mostra Minimap</span>
+                    <div class="setting-toggle active" id="minimapToggle"></div>
+                </div>
+                <div class="setting-item">
+                    <span>Chat Auto-scroll</span>
+                    <div class="setting-toggle active" id="chatScrollToggle"></div>
+                </div>
+                <div class="setting-item">
+                    <span>Dimensione UI</span>
+                    <div class="setting-slider" id="uiScaleSlider">
+                        <div class="setting-slider-fill">
+                            <div class="setting-slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <h3>Audio</h3>
+                <div class="setting-item">
+                    <span>Effetti Sonori</span>
+                    <div class="setting-toggle" id="soundToggle"></div>
+                </div>
+                <div class="setting-item">
+                    <span>Volume</span>
+                    <div class="setting-slider" id="volumeSlider">
+                        <div class="setting-slider-fill">
+                            <div class="setting-slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guild Panel -->
+    <div id="guildPanel">
+        <div class="guild-header">
+            <span>Guild: I Nostalgici</span>
+            <button class="close-btn" onclick="closeGuild()">×</button>
+        </div>
+        <div class="guild-content">
+            <div class="setting-group">
+                <h3>Membri Online (3/50)</h3>
+                <div class="guild-member">
+                    <span>Adventurer (Tu)</span>
+                    <span class="member-status">Online</span>
+                </div>
+                <div class="guild-member">
+                    <span>GuildMaster</span>
+                    <span class="member-status">Online</span>
+                </div>
+                <div class="guild-member">
+                    <span>Warrior123</span>
+                    <span class="member-status">Online</span>
+                </div>
+                <div class="guild-member">
+                    <span>Mage_Pro</span>
+                    <span class="member-status offline">Offline</span>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <h3>Chat Guild</h3>
+                <div style="background: rgba(255, 255, 255, 0.05); padding: 8px; border-radius: 4px; font-size: 11px; max-height: 150px; overflow-y: auto;">
+                    <div style="color: #ffd700;">GuildMaster: Benvenuto nella guild!</div>
+                    <div style="color: #2ed573;">Warrior123: Qualcuno per dungeon?</div>
+                    <div style="color: #4a90e2;">Sistema: Adventurer si è unito alla guild</div>
+                </div>
+                <input type="text" placeholder="Scrivi in guild..." style="width: 100%; margin-top: 8px; padding: 4px; background: rgba(255,255,255,0.1); border: 1px solid #333; border-radius: 4px; color: white;">
+            </div>
         </div>
     </div>
 
@@ -532,8 +1025,15 @@
                 // Initialize game systems
                 this.initializePlayer();
                 this.initializeEnemies();
+                this.initializeInventory();
+                this.initializeMiniMap();
+                this.initializeSettings();
+                this.loadSettings(); // Load saved settings
+                this.renderChatMessages();
+                this.renderGuildMembers();
                 this.setupEventListeners();
                 this.setupMobileControls();
+                this.setupUIControls();
                 this.optimizeUIForDevice();
                 this.startGameLoop();
                 
@@ -591,6 +1091,278 @@
                 }
             }
 
+            initializeInventory() {
+                this.inventory = {
+                    slots: 25, // 5x5 grid
+                    items: []
+                };
+                
+                // Add some starting items
+                this.addItemToInventory({
+                    id: 'potion_hp_small',
+                    name: 'Pozione HP Piccola',
+                    icon: '🧪',
+                    quantity: 5,
+                    type: 'consumable'
+                });
+                
+                this.addItemToInventory({
+                    id: 'sword_basic',
+                    name: 'Spada Base',
+                    icon: '⚔️',
+                    quantity: 1,
+                    type: 'weapon',
+                    attack: 5
+                });
+                
+                this.renderInventory();
+            }
+
+            initializeMiniMap() {
+                this.miniMapCanvas = document.getElementById('miniMapCanvas');
+                this.miniMapCtx = this.miniMapCanvas.getContext('2d');
+                this.miniMapScale = 0.1; // Scale factor for minimap
+                
+                // Minimap click handler
+                this.miniMapCanvas.addEventListener('click', (e) => {
+                    if (this.isMobile) {
+                        const rect = this.miniMapCanvas.getBoundingClientRect();
+                        const x = (e.clientX - rect.left) / this.miniMapScale;
+                        const y = (e.clientY - rect.top) / this.miniMapScale;
+                        
+                        // Move player to clicked position (simplified)
+                        this.player.x = Math.max(25, Math.min(x, 1000));
+                        this.player.y = Math.max(25, Math.min(y, 750));
+                        
+                        this.addChatMessage('System', '🗺️ Teletrasporto verso la posizione!', 'info');
+                    }
+                });
+            }
+
+            initializeSettings() {
+                this.settings = {
+                    vibration: true,
+                    autoAttack: true,
+                    joystickSize: 1.0,
+                    showMinimap: true,
+                    chatAutoScroll: true,
+                    uiScale: 1.0,
+                    soundEffects: false,
+                    volume: 0.5
+                };
+                
+                this.currentChatTab = 'general';
+                this.chatMessages = {
+                    general: [],
+                    guild: [],
+                    party: [],
+                    trade: [],
+                    system: []
+                };
+                
+                this.guildMembers = [
+                    { name: 'GuildMaster', level: 99, online: true, role: 'Leader' },
+                    { name: 'Warrior123', level: 45, online: true, role: 'Officer' },
+                    { name: 'Healer_Pro', level: 38, online: false, role: 'Member' },
+                    { name: 'MageX', level: 52, online: true, role: 'Member' }
+                ];
+            }
+
+            // Chat management functions
+            switchChatTab(tabName) {
+                this.currentChatTab = tabName;
+                
+                // Update tab appearance
+                document.querySelectorAll('.chat-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                const activeTab = document.querySelector(`.chat-tab[onclick*="${tabName}"]`);
+                if (activeTab) activeTab.classList.add('active');
+                
+                // Render messages for this tab
+                this.renderChatMessages();
+            }
+
+            renderChatMessages() {
+                const chatMessages = document.getElementById('chatMessages');
+                if (!chatMessages) return;
+                
+                chatMessages.innerHTML = '';
+                
+                const messages = this.chatMessages[this.currentChatTab] || [];
+                
+                messages.forEach(msg => {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'chat-message';
+                    messageDiv.style.color = msg.color;
+                    messageDiv.innerHTML = `<strong>${msg.sender}:</strong> ${msg.text}`;
+                    chatMessages.appendChild(messageDiv);
+                });
+                
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            sendChatMessage() {
+                const input = document.getElementById('chatInput');
+                if (!input) return;
+                
+                const message = input.value.trim();
+                if (!message) return;
+                
+                // Determine message type based on current tab
+                let type = '';
+                switch (this.currentChatTab) {
+                    case 'guild':
+                        type = 'Guild';
+                        break;
+                    case 'party':
+                        type = 'Party';
+                        break;
+                    case 'trade':
+                        type = 'Trade';
+                        break;
+                    default:
+                        type = 'General';
+                }
+                
+                this.addChatMessage('You', message, 'info', this.currentChatTab);
+                input.value = '';
+                
+                // Auto-response simulation for demonstration
+                setTimeout(() => {
+                    const responses = {
+                        general: ['Hello there!', 'Nice weather today!', 'Anyone up for a quest?'],
+                        guild: ['Guild meeting tonight!', 'Great job on that raid!', 'Welcome new members!'],
+                        party: ['Ready for dungeon?', 'Need healer for party!', 'Nice combo attack!'],
+                        trade: ['Selling rare items!', 'Looking to buy potions!', 'Great prices here!']
+                    };
+                    
+                    const tabResponses = responses[this.currentChatTab] || responses.general;
+                    const randomResponse = tabResponses[Math.floor(Math.random() * tabResponses.length)];
+                    this.addChatMessage('Player' + Math.floor(Math.random() * 100), randomResponse, '', this.currentChatTab);
+                }, 1000 + Math.random() * 2000);
+            }
+
+            // Guild management functions
+            addGuildMember() {
+                const memberName = prompt('Enter guild member name:');
+                if (!memberName) return;
+                
+                const member = {
+                    name: memberName,
+                    level: Math.floor(Math.random() * 50) + 1,
+                    online: Math.random() > 0.3,
+                    role: 'Member'
+                };
+                
+                this.guildMembers.push(member);
+                this.renderGuildMembers();
+            }
+
+            renderGuildMembers() {
+                const membersList = document.getElementById('guildMembersList');
+                if (!membersList) return;
+                
+                membersList.innerHTML = '';
+                
+                this.guildMembers.forEach((member, index) => {
+                    const memberDiv = document.createElement('div');
+                    memberDiv.className = `guild-member ${member.online ? 'online' : 'offline'}`;
+                    memberDiv.innerHTML = `
+                        <span class="member-name">${member.name}</span>
+                        <span class="member-level">Lv.${member.level}</span>
+                        <span class="member-role">${member.role}</span>
+                        <button onclick="game.removeGuildMember(${index})" class="remove-btn">×</button>
+                    `;
+                    membersList.appendChild(memberDiv);
+                });
+            }
+
+            removeGuildMember(index) {
+                if (confirm('Remove this member from guild?')) {
+                    this.guildMembers.splice(index, 1);
+                    this.renderGuildMembers();
+                }
+            }
+
+            // Settings management functions
+            updateSettingsUI() {
+                const settingsMap = {
+                    'vibrationToggle': 'vibration',
+                    'autoAttackToggle': 'autoAttack',
+                    'showMinimapToggle': 'showMinimap',
+                    'chatAutoScrollToggle': 'chatAutoScroll',
+                    'soundEffectsToggle': 'soundEffects',
+                    'joystickSizeSlider': 'joystickSize',
+                    'uiScaleSlider': 'uiScale',
+                    'volumeSlider': 'volume'
+                };
+                
+                for (const [elementId, settingKey] of Object.entries(settingsMap)) {
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        if (element.type === 'checkbox') {
+                            element.checked = this.settings[settingKey];
+                        } else if (element.type === 'range') {
+                            element.value = this.settings[settingKey];
+                            // Update display value
+                            const valueDisplay = document.getElementById(elementId + 'Value');
+                            if (valueDisplay) {
+                                if (settingKey === 'volume') {
+                                    valueDisplay.textContent = Math.round(this.settings[settingKey] * 100) + '%';
+                                } else {
+                                    valueDisplay.textContent = this.settings[settingKey];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            updateSetting(elementId, value) {
+                const settingsMap = {
+                    'vibrationToggle': 'vibration',
+                    'autoAttackToggle': 'autoAttack',
+                    'showMinimapToggle': 'showMinimap',
+                    'chatAutoScrollToggle': 'chatAutoScroll',
+                    'soundEffectsToggle': 'soundEffects',
+                    'joystickSizeSlider': 'joystickSize',
+                    'uiScaleSlider': 'uiScale',
+                    'volumeSlider': 'volume'
+                };
+                
+                const settingKey = settingsMap[elementId];
+                if (settingKey) {
+                    this.settings[settingKey] = value;
+                    this.saveSettings();
+                    
+                    // Update display value for sliders
+                    if (elementId.includes('Slider')) {
+                        const valueDisplay = document.getElementById(elementId + 'Value');
+                        if (valueDisplay) {
+                            if (settingKey === 'volume') {
+                                valueDisplay.textContent = Math.round(value * 100) + '%';
+                            } else {
+                                valueDisplay.textContent = value;
+                            }
+                        }
+                    }
+                }
+            }
+
+            saveSettings() {
+                localStorage.setItem('gameSettings', JSON.stringify(this.settings));
+            }
+
+            loadSettings() {
+                const saved = localStorage.getItem('gameSettings');
+                if (saved) {
+                    this.settings = { ...this.settings, ...JSON.parse(saved) };
+                    this.updateSettingsUI();
+                }
+            }
+
             spawnEnemy(template) {
                 const enemy = {
                     ...template,
@@ -624,16 +1396,14 @@
                 
                 // Chat
                 const chatInput = document.getElementById('chatInput');
-                chatInput.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        const message = chatInput.value.trim();
-                        if (message) {
-                            this.addChatMessage('Adventurer', message);
-                            chatInput.value = '';
+                if (chatInput) {
+                    chatInput.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            this.sendChatMessage();
+                            chatInput.blur();
                         }
-                        chatInput.blur();
-                    }
-                });
+                    });
+                }
                 
                 // Window resize
                 window.addEventListener('resize', () => {
@@ -762,6 +1532,200 @@
                 });
             }
 
+            setupUIControls() {
+                // Inventory button
+                document.getElementById('inventoryBtn').addEventListener('click', () => {
+                    this.toggleInventory();
+                });
+                
+                // Settings button
+                document.getElementById('settingsBtn').addEventListener('click', () => {
+                    this.toggleSettings();
+                });
+                
+                // Guild button
+                document.getElementById('guildBtn').addEventListener('click', () => {
+                    this.toggleGuild();
+                });
+                
+                // Chat tabs
+                document.querySelectorAll('.chat-tab').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        this.switchChatTab(e.target.dataset.tab);
+                    });
+                });
+                
+                // Settings toggles
+                this.setupSettingsControls();
+            }
+
+            setupSettingsControls() {
+                // Vibration toggle
+                document.getElementById('vibrationToggle').addEventListener('click', (e) => {
+                    this.settings.vibration = !this.settings.vibration;
+                    e.target.classList.toggle('active', this.settings.vibration);
+                });
+                
+                // Auto-attack toggle
+                document.getElementById('autoAttackToggle').addEventListener('click', (e) => {
+                    this.settings.autoAttack = !this.settings.autoAttack;
+                    e.target.classList.toggle('active', this.settings.autoAttack);
+                });
+                
+                // Minimap toggle
+                document.getElementById('minimapToggle').addEventListener('click', (e) => {
+                    this.settings.showMinimap = !this.settings.showMinimap;
+                    e.target.classList.toggle('active', this.settings.showMinimap);
+                    document.getElementById('miniMap').style.display = this.settings.showMinimap ? 'block' : 'none';
+                });
+                
+                // Chat auto-scroll toggle
+                document.getElementById('chatScrollToggle').addEventListener('click', (e) => {
+                    this.settings.chatAutoScroll = !this.settings.chatAutoScroll;
+                    e.target.classList.toggle('active', this.settings.chatAutoScroll);
+                });
+                
+                // Sound toggle
+                document.getElementById('soundToggle').addEventListener('click', (e) => {
+                    this.settings.soundEffects = !this.settings.soundEffects;
+                    e.target.classList.toggle('active', this.settings.soundEffects);
+                });
+            }
+
+            // Inventory Management
+            addItemToInventory(item) {
+                const existingItem = this.inventory.items.find(i => i.id === item.id);
+                if (existingItem) {
+                    existingItem.quantity += item.quantity;
+                } else {
+                    this.inventory.items.push(item);
+                }
+                this.renderInventory();
+            }
+
+            renderInventory() {
+                const grid = document.getElementById('inventoryGrid');
+                grid.innerHTML = '';
+                
+                for (let i = 0; i < this.inventory.slots; i++) {
+                    const slot = document.createElement('div');
+                    slot.className = 'inventory-slot';
+                    slot.dataset.slot = i;
+                    
+                    const item = this.inventory.items[i];
+                    if (item) {
+                        slot.classList.add('has-item');
+                        slot.innerHTML = `
+                            <div class="item-icon">${item.icon}</div>
+                            ${item.quantity > 1 ? `<div class="item-quantity">${item.quantity}</div>` : ''}
+                        `;
+                        slot.title = item.name;
+                    }
+                    
+                    slot.addEventListener('click', () => {
+                        if (item) {
+                            this.useItem(item);
+                        }
+                    });
+                    
+                    grid.appendChild(slot);
+                }
+            }
+
+            useItem(item) {
+                if (item.type === 'consumable' && item.id === 'potion_hp_small') {
+                    if (this.player.currentHP < this.player.maxHP) {
+                        this.player.currentHP = Math.min(this.player.maxHP, this.player.currentHP + 25);
+                        item.quantity--;
+                        
+                        if (item.quantity <= 0) {
+                            const index = this.inventory.items.indexOf(item);
+                            this.inventory.items.splice(index, 1);
+                        }
+                        
+                        this.updatePlayerUI();
+                        this.renderInventory();
+                        this.addChatMessage('System', '🧪 Hai usato una Pozione HP Piccola!', 'success');
+                        
+                        if (this.settings.vibration && navigator.vibrate) {
+                            navigator.vibrate(100);
+                        }
+                    } else {
+                        this.addChatMessage('System', 'HP già al massimo!', 'warning');
+                    }
+                }
+            }
+
+            // UI Panel Management
+            toggleInventory() {
+                const panel = document.getElementById('inventoryPanel');
+                const isOpen = panel.classList.contains('show');
+                
+                this.closeAllPanels();
+                
+                if (!isOpen) {
+                    panel.classList.add('show');
+                    this.renderInventory();
+                }
+            }
+
+            toggleSettings() {
+                const panel = document.getElementById('settingsPanel');
+                const isOpen = panel.classList.contains('show');
+                
+                this.closeAllPanels();
+                
+                if (!isOpen) {
+                    panel.classList.add('show');
+                }
+            }
+
+            toggleGuild() {
+                const panel = document.getElementById('guildPanel');
+                const isOpen = panel.classList.contains('show');
+                
+                this.closeAllPanels();
+                
+                if (!isOpen) {
+                    panel.classList.add('show');
+                }
+            }
+
+            closeAllPanels() {
+                document.getElementById('inventoryPanel').classList.remove('show');
+                document.getElementById('settingsPanel').classList.remove('show');
+                document.getElementById('guildPanel').classList.remove('show');
+            }
+
+            switchChatTab(tabName) {
+                this.currentChatTab = tabName;
+                
+                // Update tab appearance
+                document.querySelectorAll('.chat-tab').forEach(tab => {
+                    tab.classList.toggle('active', tab.dataset.tab === tabName);
+                });
+                
+                // Update chat messages
+                this.renderChatMessages();
+            }
+
+            renderChatMessages() {
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.innerHTML = '';
+                
+                const messages = this.chatMessages[this.currentChatTab] || [];
+                messages.forEach(msg => {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.style.color = msg.color;
+                    messageDiv.innerHTML = `<strong>${msg.sender}:</strong> ${msg.text}`;
+                    chatMessages.appendChild(messageDiv);
+                });
+                
+                if (this.settings.chatAutoScroll) {
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+            }
+
             handleKeyDown(e) {
                 this.keys[e.key.toLowerCase()] = true;
                 
@@ -800,6 +1764,27 @@
                 // Enter for chat
                 if (e.key === 'Enter') {
                     document.getElementById('chatInput').focus();
+                }
+                
+                // Inventory (I key)
+                if (e.key.toLowerCase() === 'i') {
+                    this.toggleInventory();
+                }
+                
+                // Guild (G key)
+                if (e.key.toLowerCase() === 'g') {
+                    this.toggleGuild();
+                }
+                
+                // Settings (Esc key)
+                if (e.key === 'Escape') {
+                    if (document.getElementById('inventoryPanel').classList.contains('show') ||
+                        document.getElementById('settingsPanel').classList.contains('show') ||
+                        document.getElementById('guildPanel').classList.contains('show')) {
+                        this.closeAllPanels();
+                    } else {
+                        this.toggleSettings();
+                    }
                 }
             }
 
@@ -1212,6 +2197,55 @@
                 this.renderEnemies();
                 this.renderPlayer();
                 this.renderEffects();
+                
+                // Update minimap if enabled
+                if (this.settings.showMinimap) {
+                    this.renderMiniMap();
+                }
+            }
+
+            renderMiniMap() {
+                if (!this.miniMapCtx) return;
+                
+                const ctx = this.miniMapCtx;
+                const width = this.miniMapCanvas.width;
+                const height = this.miniMapCanvas.height;
+                
+                // Clear minimap
+                ctx.fillStyle = '#1a3328';
+                ctx.fillRect(0, 0, width, height);
+                
+                // Draw world bounds
+                ctx.strokeStyle = '#4a90e2';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(0, 0, 100, 75);
+                
+                // Draw player position
+                const playerX = (this.player.x / 1000) * 100;
+                const playerY = (this.player.y / 750) * 75;
+                
+                ctx.fillStyle = '#4a90e2';
+                ctx.fillRect(playerX - 1, playerY - 1, 2, 2);
+                
+                // Draw enemies
+                this.enemies.forEach(enemy => {
+                    if (!enemy.isDead) {
+                        const enemyX = (enemy.x / 1000) * 100;
+                        const enemyY = (enemy.y / 750) * 75;
+                        
+                        ctx.fillStyle = enemy === this.selectedTarget ? '#ffff00' : '#ff4757';
+                        ctx.fillRect(enemyX - 0.5, enemyY - 0.5, 1, 1);
+                    }
+                });
+                
+                // Draw camera view rectangle
+                const camX = (this.camera.x / 1000) * 100;
+                const camY = (this.camera.y / 750) * 75;
+                const camW = (this.canvas.width / 1000) * 100;
+                const camH = (this.canvas.height / 750) * 75;
+                
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.strokeRect(camX, camY, camW, camH);
             }
 
             renderGrid() {
@@ -1374,9 +2408,8 @@
                 document.body.appendChild(deathScreen);
             }
 
-            addChatMessage(sender, message, type = '') {
-                const chatMessages = document.getElementById('chatMessages');
-                const messageDiv = document.createElement('div');
+            addChatMessage(sender, message, type = '', tab = null) {
+                const targetTab = tab || this.currentChatTab;
                 
                 let color = 'white';
                 if (type === 'error') color = '#ff4757';
@@ -1384,15 +2417,28 @@
                 else if (type === 'info') color = '#4a90e2';
                 else if (type === 'warning') color = '#ffa726';
                 
-                messageDiv.style.color = color;
-                messageDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
+                // Add to message history
+                const messageObj = {
+                    sender,
+                    text: message,
+                    color,
+                    timestamp: Date.now()
+                };
                 
-                chatMessages.appendChild(messageDiv);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
+                if (!this.chatMessages[targetTab]) {
+                    this.chatMessages[targetTab] = [];
+                }
                 
-                // Keep only last 50 messages
-                while (chatMessages.children.length > 50) {
-                    chatMessages.removeChild(chatMessages.firstChild);
+                this.chatMessages[targetTab].push(messageObj);
+                
+                // Keep only last 50 messages per tab
+                if (this.chatMessages[targetTab].length > 50) {
+                    this.chatMessages[targetTab].shift();
+                }
+                
+                // Update display if this is the current tab
+                if (targetTab === this.currentChatTab) {
+                    this.renderChatMessages();
                 }
             }
 
@@ -1488,9 +2534,52 @@
             }
         }
 
+        // Global functions for UI controls
+        function toggleInventory() {
+            if (window.game) {
+                window.game.toggleInventory();
+            }
+        }
+
+        function toggleSettings() {
+            if (window.game) {
+                window.game.toggleSettings();
+            }
+        }
+
+        function toggleGuild() {
+            if (window.game) {
+                window.game.toggleGuild();
+            }
+        }
+
+        function switchChatTab(tabName) {
+            if (window.game) {
+                window.game.switchChatTab(tabName);
+            }
+        }
+
+        function sendChatMessage() {
+            if (window.game) {
+                window.game.sendChatMessage();
+            }
+        }
+
+        function addGuildMember() {
+            if (window.game) {
+                window.game.addGuildMember();
+            }
+        }
+
+        function updateSetting(elementId, value) {
+            if (window.game) {
+                window.game.updateSetting(elementId, value);
+            }
+        }
+
         // Start the game when page loads
         window.addEventListener('load', () => {
-            new NosTaleGame();
+            window.game = new NosTaleGame();
         });
     </script>
 </body>
