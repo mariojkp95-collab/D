@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NosTale Clone</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            touch-action: none; /* Prevent scrolling on mobile */
+            user-select: none; /* Prevent text selection */
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        #gameCanvas {
+            display: block;
+            background: #2d4a2b;
+            cursor: crosshair;
+            touch-action: none;
+        }
+
+        /* HUD Elements */
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Player Info Panel */
+        #playerPanel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #4a90e2;
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            min-width: 200px;
+        }
+
+        .health-bar, .mana-bar {
+            width: 150px;
+            height: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            margin: 3px 0;
+            overflow: hidden;
+        }
+
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4757, #ff3742);
+            border-radius: 8px;
+            transition: width 0.3s ease;
+        }
+
+        .mana-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3742fa, #2f3542);
+            border-radius: 8px;
+            transition: width 0.3s ease;
+        }
+
+        /* Target Panel */
+        #targetPanel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #e74c3c;
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            min-width: 180px;
+            display: none;
+        }
+
+        /* Action Bar */
+        #actionBar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #4a90e2;
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .skill-slot {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #333;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .skill-slot:hover {
+            border-color: #4a90e2;
+            background: rgba(74, 144, 226, 0.2);
+        }
+
+        .skill-slot.selected {
+            border-color: #ffff00;
+            background: rgba(255, 255, 0, 0.1);
+        }
+
+        /* Chat */
+        #chatPanel {
+            position: absolute;
+            bottom: 80px;
+            left: 10px;
+            width: 400px;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 5px;
+            overflow: hidden;
+            pointer-events: auto;
+        }
+
+        #chatMessages {
+            height: 90px;
+            overflow-y: auto;
+            padding: 5px;
+            color: white;
+            font-size: 12px;
+        }
+
+        #chatInput {
+            width: 100%;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            padding: 5px;
+            color: white;
+            outline: none;
+        }
+
+        #chatInput::placeholder {
+            color: #aaa;
+        }
+
+        /* Notifications */
+        .notification {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-size: 18px;
+            z-index: 1000;
+            animation: fadeInOut 3s ease-in-out;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            20%, 80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .notification.error { border-left: 4px solid #ff4757; }
+        .notification.success { border-left: 4px solid #2ed573; }
+        .notification.info { border-left: 4px solid #4a90e2; }
+        .notification.warning { border-left: 4px solid #ffa726; }
+
+        /* Mobile Controls */
+        #mobileControls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: none;
+            z-index: 20;
+        }
+
+        #joystick {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            position: relative;
+            touch-action: none;
+        }
+
+        #joystickKnob {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.1s ease;
+        }
+
+        /* Mobile Action Buttons */
+        #mobileActionButtons {
+            position: fixed;
+            bottom: 160px;
+            right: 20px;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 20;
+        }
+
+        .mobile-btn {
+            width: 60px;
+            height: 60px;
+            background: rgba(74, 144, 226, 0.8);
+            border: 2px solid #4a90e2;
+            border-radius: 50%;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: none;
+            user-select: none;
+        }
+
+        .mobile-btn:active {
+            background: rgba(74, 144, 226, 1);
+            transform: scale(0.95);
+        }
+
+        /* Show mobile controls on small screens */
+        @media (max-width: 768px) {
+            #mobileControls, #mobileActionButtons {
+                display: flex;
+            }
+            
+            #chatPanel {
+                width: 300px;
+                height: 100px;
+            }
+            
+            #chatMessages {
+                height: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="hud">
+        <!-- Player Panel -->
+        <div id="playerPanel">
+            <div style="font-weight: bold; margin-bottom: 5px;">
+                <span id="playerName">Adventurer</span> - Lv.<span id="playerLevel">1</span>
+            </div>
+            <div>HP: <span id="playerHP">100</span>/<span id="playerMaxHP">100</span></div>
+            <div class="health-bar">
+                <div class="health-fill" id="healthFill" style="width: 100%;"></div>
+            </div>
+            <div>MP: <span id="playerMP">50</span>/<span id="playerMaxMP">50</span></div>
+            <div class="mana-bar">
+                <div class="mana-fill" id="manaFill" style="width: 100%;"></div>
+            </div>
+            <div>EXP: <span id="playerEXP">0</span> | Gold: <span id="playerGold">0</span></div>
+        </div>
+
+        <!-- Target Panel -->
+        <div id="targetPanel">
+            <div style="font-weight: bold; margin-bottom: 5px;">
+                <span id="targetName">-</span> - Lv.<span id="targetLevel">-</span>
+            </div>
+            <div>HP: <span id="targetHP">-</span>/<span id="targetMaxHP">-</span></div>
+            <div class="health-bar">
+                <div class="health-fill" id="targetHealthFill" style="width: 0%;"></div>
+            </div>
+        </div>
+
+        <!-- Action Bar -->
+        <div id="actionBar">
+            <div class="skill-slot" data-key="1">1</div>
+            <div class="skill-slot" data-key="2">2</div>
+            <div class="skill-slot" data-key="3">3</div>
+            <div class="skill-slot" data-key="4">4</div>
+            <div class="skill-slot" data-key="5">5</div>
+            <div class="skill-slot" data-key="6">6</div>
+            <div style="margin-left: 10px; color: #aaa; font-size: 11px;">
+                Space: Target | Double-Click: Attack
+            </div>
+        </div>
+
+        <!-- Chat Panel -->
+        <div id="chatPanel">
+            <div id="chatMessages"></div>
+            <input type="text" id="chatInput" placeholder="Premi Enter per scrivere...">
+        </div>
+    </div>
+
+    <!-- Mobile Controls -->
+    <div id="mobileControls">
+        <div id="joystick">
+            <div id="joystickKnob"></div>
+        </div>
+    </div>
+
+    <div id="mobileActionButtons">
+        <div class="mobile-btn" id="mobileTargetBtn">🎯</div>
+        <div class="mobile-btn" id="mobileAttackBtn">⚔️</div>
+        <div class="mobile-btn" id="mobileSkillBtn">🔥</div>
+    </div>
+
+    <script>
+        class NosTaleGame {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.setupCanvas();
+                
+                // Game state
+                this.gameState = 'playing';
+                this.camera = { x: 0, y: 0 };
+                
+                // Input handling
+                this.keys = {};
+                this.lastSpacePress = 0;
+                this.lastMouseClick = 0;
+                this.selectedTarget = null;
+                this.isAutoAttacking = false;
+                this.spaceClickCount = 0;
+                this.mouseClickCount = 0;
+                
+                // Mobile support
+                this.isMobile = this.detectMobile();
+                this.joystickActive = false;
+                this.joystickCenter = { x: 0, y: 0 };
+                this.moveDirection = { x: 0, y: 0 };
+                
+                // Initialize game systems
+                this.initializePlayer();
+                this.initializeEnemies();
+                this.setupEventListeners();
+                this.setupMobileControls();
+                this.startGameLoop();
+                
+                console.log('🎮 NosTale Clone avviato!');
+            }
+
+            setupCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                this.canvas.tabIndex = 1;
+            }
+
+            initializePlayer() {
+                this.player = {
+                    id: 'player',
+                    name: 'Adventurer',
+                    x: 400,
+                    y: 300,
+                    level: 1,
+                    maxHP: 100,
+                    currentHP: 100,
+                    maxMP: 50,
+                    currentMP: 50,
+                    experience: 0,
+                    gold: 0,
+                    attackMin: 8,
+                    attackMax: 15,
+                    defense: 3,
+                    speed: 120,
+                    lastAttack: 0,
+                    attackCooldown: 1500,
+                    isDead: false,
+                    isMoving: false
+                };
+                this.updatePlayerUI();
+            }
+
+            initializeEnemies() {
+                this.enemies = [];
+                // Spawn alcuni slime
+                for (let i = 0; i < 5; i++) {
+                    this.spawnEnemy({
+                        name: 'Green Slime',
+                        level: 1,
+                        maxHP: 45,
+                        currentHP: 45,
+                        attackMin: 3,
+                        attackMax: 7,
+                        defense: 1,
+                        speed: 80,
+                        aggroRange: 100,
+                        expReward: 15,
+                        goldReward: 5
+                    });
+                }
+            }
+
+            spawnEnemy(template) {
+                const enemy = {
+                    ...template,
+                    id: 'enemy_' + Date.now() + Math.random(),
+                    x: Math.random() * 800 + 100,
+                    y: Math.random() * 600 + 100,
+                    target: null,
+                    lastAttack: 0,
+                    attackCooldown: 2000,
+                    isDead: false,
+                    lastAction: 0
+                };
+                this.enemies.push(enemy);
+            }
+
+            setupEventListeners() {
+                // Keyboard
+                document.addEventListener('keydown', (e) => this.handleKeyDown(e));
+                document.addEventListener('keyup', (e) => this.handleKeyUp(e));
+                
+                // Mouse/Touch Events
+                this.canvas.addEventListener('click', (e) => this.handleMouseClick(e));
+                this.canvas.addEventListener('touchstart', (e) => this.handleTouchStart(e));
+                this.canvas.addEventListener('touchend', (e) => this.handleTouchEnd(e));
+                this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+                
+                // Touch movement
+                this.canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault(); // Prevent scrolling
+                }, { passive: false });
+                
+                // Chat
+                const chatInput = document.getElementById('chatInput');
+                chatInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        const message = chatInput.value.trim();
+                        if (message) {
+                            this.addChatMessage('Adventurer', message);
+                            chatInput.value = '';
+                        }
+                        chatInput.blur();
+                    }
+                });
+                
+                // Window resize
+                window.addEventListener('resize', () => this.setupCanvas());
+                
+                // Prevent zoom on mobile
+                document.addEventListener('gesturestart', (e) => e.preventDefault());
+                document.addEventListener('gesturechange', (e) => e.preventDefault());
+            }
+
+            detectMobile() {
+                return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            }
+
+            setupMobileControls() {
+                if (!this.isMobile) return;
+
+                const joystick = document.getElementById('joystick');
+                const joystickKnob = document.getElementById('joystickKnob');
+                
+                // Joystick touch events
+                joystick.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.joystickActive = true;
+                    const rect = joystick.getBoundingClientRect();
+                    this.joystickCenter = {
+                        x: rect.left + rect.width / 2,
+                        y: rect.top + rect.height / 2
+                    };
+                });
+
+                joystick.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    if (!this.joystickActive) return;
+                    
+                    const touch = e.touches[0];
+                    const deltaX = touch.clientX - this.joystickCenter.x;
+                    const deltaY = touch.clientY - this.joystickCenter.y;
+                    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                    
+                    const maxDistance = 40;
+                    const clampedDistance = Math.min(distance, maxDistance);
+                    
+                    if (distance > 5) {
+                        const angle = Math.atan2(deltaY, deltaX);
+                        const knobX = Math.cos(angle) * clampedDistance;
+                        const knobY = Math.sin(angle) * clampedDistance;
+                        
+                        joystickKnob.style.transform = `translate(calc(-50% + ${knobX}px), calc(-50% + ${knobY}px))`;
+                        
+                        this.moveDirection = {
+                            x: knobX / maxDistance,
+                            y: knobY / maxDistance
+                        };
+                    } else {
+                        this.moveDirection = { x: 0, y: 0 };
+                        joystickKnob.style.transform = 'translate(-50%, -50%)';
+                    }
+                });
+
+                joystick.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    this.joystickActive = false;
+                    this.moveDirection = { x: 0, y: 0 };
+                    joystickKnob.style.transform = 'translate(-50%, -50%)';
+                });
+
+                // Mobile action buttons
+                document.getElementById('mobileTargetBtn').addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.selectNearestEnemy();
+                });
+
+                document.getElementById('mobileAttackBtn').addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    if (this.selectedTarget) {
+                        this.isAutoAttacking = true;
+                        this.addChatMessage('System', `⚔️ Auto-attacco su ${this.selectedTarget.name}!`, 'info');
+                    }
+                });
+
+                document.getElementById('mobileSkillBtn').addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.selectSkill(0); // Seleziona skill 1
+                });
+            }
+
+            handleKeyDown(e) {
+                this.keys[e.key.toLowerCase()] = true;
+                
+                // Dead player can only respawn
+                if (this.player.isDead) {
+                    if (e.key === ' ' || e.key === 'Enter' || e.key.toLowerCase() === 'r') {
+                        this.respawnPlayer();
+                    }
+                    return;
+                }
+                
+                // Skill selection (1-6 keys)
+                if (['1', '2', '3', '4', '5', '6'].includes(e.key)) {
+                    this.selectSkill(parseInt(e.key) - 1);
+                }
+                
+                // Spacebar for targeting
+                if (e.key === ' ') {
+                    e.preventDefault();
+                    this.handleSpacebarPress();
+                }
+                
+                // Tab for next enemy
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    this.selectNextEnemy();
+                }
+                
+                // Escape to deselect
+                if (e.key === 'Escape') {
+                    this.selectedTarget = null;
+                    this.isAutoAttacking = false;
+                    this.updateTargetUI();
+                }
+                
+                // Enter for chat
+                if (e.key === 'Enter') {
+                    document.getElementById('chatInput').focus();
+                }
+            }
+
+            handleKeyUp(e) {
+                this.keys[e.key.toLowerCase()] = false;
+            }
+
+            handleMouseClick(e) {
+                if (this.player.isDead) return;
+                
+                const rect = this.canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left + this.camera.x;
+                const mouseY = e.clientY - rect.top + this.camera.y;
+                
+                this.handleTargetingInput(mouseX, mouseY, 'mouse');
+            }
+
+            handleTouchStart(e) {
+                e.preventDefault();
+                if (this.player.isDead) return;
+                
+                const touch = e.touches[0];
+                const rect = this.canvas.getBoundingClientRect();
+                const touchX = touch.clientX - rect.left + this.camera.x;
+                const touchY = touch.clientY - rect.top + this.camera.y;
+                
+                this.touchStartTime = Date.now();
+                this.touchStartX = touchX;
+                this.touchStartY = touchY;
+            }
+
+            handleTouchEnd(e) {
+                e.preventDefault();
+                if (this.player.isDead) return;
+                
+                const touchEndTime = Date.now();
+                const touchDuration = touchEndTime - this.touchStartTime;
+                
+                // Se è un tap (non un trascinamento lungo)
+                if (touchDuration < 500) {
+                    this.handleTargetingInput(this.touchStartX, this.touchStartY, 'touch');
+                }
+            }
+
+            handleTargetingInput(x, y, inputType) {
+                const now = Date.now();
+                const clickedEnemy = this.getEnemyAtPosition(x, y);
+                
+                if (clickedEnemy && !clickedEnemy.isDead) {
+                    // Se è lo stesso nemico selezionato
+                    if (this.selectedTarget === clickedEnemy) {
+                        if (inputType === 'mouse') {
+                            this.mouseClickCount++;
+                            setTimeout(() => { this.mouseClickCount = 0; }, 500);
+                            
+                            if (this.mouseClickCount >= 2) {
+                                // Doppio click mouse - attacca e insegui
+                                this.isAutoAttacking = true;
+                                this.addChatMessage('System', `🎯 Auto-attacco su ${clickedEnemy.name}!`, 'info');
+                                this.mouseClickCount = 0;
+                            }
+                        } else if (inputType === 'touch') {
+                            // Su touch, doppio tap per attaccare
+                            if (now - this.lastMouseClick < 500) {
+                                this.isAutoAttacking = true;
+                                this.addChatMessage('System', `🎯 Auto-attacco su ${clickedEnemy.name}!`, 'info');
+                            }
+                        }
+                    } else {
+                        // Nuovo nemico selezionato - singolo click/tap
+                        this.selectedTarget = clickedEnemy;
+                        this.isAutoAttacking = false;
+                        this.mouseClickCount = 1;
+                        this.addChatMessage('System', `👁️ ${clickedEnemy.name} selezionato`, 'warning');
+                    }
+                    
+                    this.lastMouseClick = now;
+                    this.updateTargetUI();
+                } else {
+                    // Click su area vuota - deseleziona
+                    this.selectedTarget = null;
+                    this.isAutoAttacking = false;
+                    this.mouseClickCount = 0;
+                    this.updateTargetUI();
+                }
+            }
+
+            handleSpacebarPress() {
+                const now = Date.now();
+                
+                // Incrementa counter e resetta dopo 500ms
+                this.spaceClickCount++;
+                setTimeout(() => { this.spaceClickCount = 0; }, 500);
+                
+                if (this.spaceClickCount === 1) {
+                    // Primo click spacebar - seleziona nemico più vicino
+                    this.selectNearestEnemy();
+                } else if (this.spaceClickCount >= 2 && this.selectedTarget) {
+                    // Doppio click spacebar - attacca e insegui nemico selezionato
+                    this.isAutoAttacking = true;
+                    this.addChatMessage('System', `⚔️ Auto-attacco su ${this.selectedTarget.name}!`, 'info');
+                    this.spaceClickCount = 0; // Reset counter
+                }
+                
+                this.lastSpacePress = now;
+            }
+
+            selectSkill(index) {
+                // Remove previous selection
+                document.querySelectorAll('.skill-slot').forEach(slot => {
+                    slot.classList.remove('selected');
+                });
+                
+                // Select new skill
+                const slots = document.querySelectorAll('.skill-slot');
+                if (slots[index]) {
+                    slots[index].classList.add('selected');
+                    this.addChatMessage('System', `Skill ${index + 1} selezionata`, 'info');
+                }
+            }
+
+            selectNearestEnemy() {
+                const aliveEnemies = this.enemies.filter(e => !e.isDead);
+                if (aliveEnemies.length === 0) return;
+                
+                let nearest = null;
+                let nearestDistance = Infinity;
+                
+                aliveEnemies.forEach(enemy => {
+                    const distance = this.getDistance(this.player, enemy);
+                    if (distance < nearestDistance) {
+                        nearestDistance = distance;
+                        nearest = enemy;
+                    }
+                });
+                
+                this.selectedTarget = nearest;
+                this.updateTargetUI();
+            }
+
+            selectNextEnemy() {
+                const aliveEnemies = this.enemies.filter(e => !e.isDead);
+                if (aliveEnemies.length === 0) return;
+                
+                let currentIndex = this.selectedTarget ? aliveEnemies.indexOf(this.selectedTarget) : -1;
+                const nextIndex = (currentIndex + 1) % aliveEnemies.length;
+                
+                this.selectedTarget = aliveEnemies[nextIndex];
+                this.updateTargetUI();
+            }
+
+            getEnemyAtPosition(x, y) {
+                for (const enemy of this.enemies) {
+                    if (enemy.isDead) continue;
+                    const distance = Math.sqrt((x - enemy.x) ** 2 + (y - enemy.y) ** 2);
+                    if (distance < 25) return enemy;
+                }
+                return null;
+            }
+
+            // Game update loop
+            update(deltaTime) {
+                if (this.gameState !== 'playing') return;
+                
+                this.updatePlayer(deltaTime);
+                this.updateEnemies(deltaTime);
+                this.updateAutoAttack(deltaTime);
+                this.updateCamera();
+            }
+
+            updatePlayer(deltaTime) {
+                if (this.player.isDead) return;
+                
+                // Movement - keyboard controls
+                let moveX = 0, moveY = 0;
+                if (this.keys['w'] || this.keys['arrowup']) moveY = -1;
+                if (this.keys['s'] || this.keys['arrowdown']) moveY = 1;
+                if (this.keys['a'] || this.keys['arrowleft']) moveX = -1;
+                if (this.keys['d'] || this.keys['arrowright']) moveX = 1;
+                
+                // Mobile joystick controls (override keyboard if active)
+                if (this.isMobile && (this.moveDirection.x !== 0 || this.moveDirection.y !== 0)) {
+                    moveX = this.moveDirection.x;
+                    moveY = this.moveDirection.y;
+                }
+                
+                // Normalize diagonal movement
+                if (moveX !== 0 && moveY !== 0) {
+                    moveX *= 0.707;
+                    moveY *= 0.707;
+                }
+                
+                // Apply movement
+                if (moveX !== 0 || moveY !== 0) {
+                    this.player.x += moveX * this.player.speed * (deltaTime / 1000);
+                    this.player.y += moveY * this.player.speed * (deltaTime / 1000);
+                    this.player.isMoving = true;
+                    
+                    // Stop auto-attacking when moving
+                    if (this.isAutoAttacking) {
+                        this.isAutoAttacking = false;
+                    }
+                } else {
+                    this.player.isMoving = false;
+                }
+                
+                // Keep player in bounds
+                this.player.x = Math.max(25, Math.min(this.player.x, 1000));
+                this.player.y = Math.max(25, Math.min(this.player.y, 750));
+                
+                // Check for death
+                if (this.player.currentHP <= 0 && !this.player.isDead) {
+                    this.killPlayer();
+                }
+            }
+
+            updateEnemies(deltaTime) {
+                this.enemies.forEach(enemy => {
+                    if (enemy.isDead) return;
+                    
+                    // Simple AI
+                    const distanceToPlayer = this.getDistance(enemy, this.player);
+                    
+                    // Aggro check
+                    if (!enemy.target && distanceToPlayer <= enemy.aggroRange && !this.player.isDead) {
+                        enemy.target = this.player;
+                    }
+                    
+                    // Lose aggro if too far
+                    if (enemy.target && distanceToPlayer > enemy.aggroRange * 2) {
+                        enemy.target = null;
+                    }
+                    
+                    // Attack or move
+                    if (enemy.target) {
+                        if (distanceToPlayer <= 35) {
+                            // Attack
+                            const now = Date.now();
+                            if (now - enemy.lastAttack > enemy.attackCooldown) {
+                                this.enemyAttackPlayer(enemy);
+                                enemy.lastAttack = now;
+                            }
+                        } else if (distanceToPlayer <= enemy.aggroRange * 1.5) {
+                            // Move toward player
+                            this.moveEnemyToward(enemy, this.player, deltaTime);
+                        }
+                    }
+                    
+                    // Check for death
+                    if (enemy.currentHP <= 0) {
+                        this.killEnemy(enemy);
+                    }
+                });
+            }
+
+            updateAutoAttack(deltaTime) {
+                if (!this.isAutoAttacking || !this.selectedTarget || this.selectedTarget.isDead || this.player.isDead) {
+                    this.isAutoAttacking = false;
+                    return;
+                }
+                
+                const distance = this.getDistance(this.player, this.selectedTarget);
+                
+                // Move closer if needed
+                if (distance > 45) {
+                    this.movePlayerToward(this.selectedTarget, deltaTime);
+                } else {
+                    // Attack
+                    const now = Date.now();
+                    if (now - this.player.lastAttack > this.player.attackCooldown) {
+                        this.playerAttackEnemy(this.selectedTarget);
+                        this.player.lastAttack = now;
+                    }
+                }
+            }
+
+            moveEnemyToward(enemy, target, deltaTime) {
+                const dx = target.x - enemy.x;
+                const dy = target.y - enemy.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance > 30) {
+                    const speed = enemy.speed;
+                    enemy.x += (dx / distance) * speed * (deltaTime / 1000);
+                    enemy.y += (dy / distance) * speed * (deltaTime / 1000);
+                }
+            }
+
+            movePlayerToward(target, deltaTime) {
+                const dx = target.x - this.player.x;
+                const dy = target.y - this.player.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance > 45) {
+                    const speed = this.player.speed;
+                    this.player.x += (dx / distance) * speed * (deltaTime / 1000);
+                    this.player.y += (dy / distance) * speed * (deltaTime / 1000);
+                }
+            }
+
+            playerAttackEnemy(enemy) {
+                const damage = Math.floor(Math.random() * (this.player.attackMax - this.player.attackMin + 1)) + this.player.attackMin;
+                const finalDamage = Math.max(1, damage - enemy.defense);
+                
+                enemy.currentHP -= finalDamage;
+                this.createFloatingText(enemy.x, enemy.y - 20, `-${finalDamage}`, '#ff4444');
+                
+                console.log(`⚔️ Player attacca ${enemy.name} per ${finalDamage} danni`);
+            }
+
+            enemyAttackPlayer(enemy) {
+                const damage = Math.floor(Math.random() * (enemy.attackMax - enemy.attackMin + 1)) + enemy.attackMin;
+                const finalDamage = Math.max(1, damage - this.player.defense);
+                
+                this.player.currentHP -= finalDamage;
+                this.createFloatingText(this.player.x, this.player.y - 20, `-${finalDamage}`, '#ff6666');
+                this.updatePlayerUI();
+                
+                console.log(`💥 ${enemy.name} attacca il player per ${finalDamage} danni`);
+            }
+
+            killPlayer() {
+                this.player.isDead = true;
+                this.player.currentHP = 0;
+                this.selectedTarget = null;
+                this.isAutoAttacking = false;
+                this.gameState = 'gameover';
+                
+                this.showDeathScreen();
+                this.addChatMessage('System', 'Sei morto! Premi SPACE per respawnare.', 'error');
+            }
+
+            killEnemy(enemy) {
+                enemy.isDead = true;
+                
+                // Give rewards
+                this.player.experience += enemy.expReward;
+                this.player.gold += enemy.goldReward;
+                
+                this.addChatMessage('System', `${enemy.name} sconfitto! +${enemy.expReward} EXP, +${enemy.goldReward} Gold`, 'success');
+                
+                // Clear target if this was it
+                if (this.selectedTarget === enemy) {
+                    this.selectedTarget = null;
+                    this.isAutoAttacking = false;
+                    this.updateTargetUI();
+                }
+                
+                this.updatePlayerUI();
+                
+                // Respawn enemy after some time
+                setTimeout(() => {
+                    const index = this.enemies.indexOf(enemy);
+                    if (index > -1) {
+                        this.enemies.splice(index, 1);
+                        this.spawnEnemy({
+                            name: 'Green Slime',
+                            level: 1,
+                            maxHP: 45,
+                            currentHP: 45,
+                            attackMin: 3,
+                            attackMax: 7,
+                            defense: 1,
+                            speed: 80,
+                            aggroRange: 100,
+                            expReward: 15,
+                            goldReward: 5
+                        });
+                    }
+                }, 5000);
+            }
+
+            respawnPlayer() {
+                this.player.isDead = false;
+                this.player.currentHP = Math.floor(this.player.maxHP * 0.5);
+                this.player.currentMP = this.player.maxMP;
+                this.player.x = 400;
+                this.player.y = 300;
+                this.gameState = 'playing';
+                
+                // Remove death screen
+                const deathScreen = document.getElementById('deathScreen');
+                if (deathScreen) {
+                    deathScreen.remove();
+                }
+                
+                this.updatePlayerUI();
+                this.addChatMessage('System', 'Respawn completato!', 'info');
+            }
+
+            updateCamera() {
+                // Simple camera follow
+                this.camera.x = this.player.x - this.canvas.width / 2;
+                this.camera.y = this.player.y - this.canvas.height / 2;
+                
+                // Keep camera in bounds
+                this.camera.x = Math.max(0, Math.min(this.camera.x, 1000 - this.canvas.width));
+                this.camera.y = Math.max(0, Math.min(this.camera.y, 750 - this.canvas.height));
+            }
+
+            // Rendering
+            render() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Background
+                this.ctx.fillStyle = '#2d4a2b';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                this.renderGrid();
+                this.renderEnemies();
+                this.renderPlayer();
+                this.renderEffects();
+            }
+
+            renderGrid() {
+                this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                this.ctx.lineWidth = 1;
+                
+                const gridSize = 50;
+                const startX = -this.camera.x % gridSize;
+                const startY = -this.camera.y % gridSize;
+                
+                for (let x = startX; x < this.canvas.width; x += gridSize) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, 0);
+                    this.ctx.lineTo(x, this.canvas.height);
+                    this.ctx.stroke();
+                }
+                
+                for (let y = startY; y < this.canvas.height; y += gridSize) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, y);
+                    this.ctx.lineTo(this.canvas.width, y);
+                    this.ctx.stroke();
+                }
+            }
+
+            renderPlayer() {
+                const screenX = this.player.x - this.camera.x;
+                const screenY = this.player.y - this.camera.y;
+                
+                // Player body
+                this.ctx.fillStyle = this.player.isDead ? '#666' : '#4a90e2';
+                this.ctx.fillRect(screenX - 15, screenY - 15, 30, 30);
+                
+                // Player name
+                this.ctx.fillStyle = 'white';
+                this.ctx.font = '12px Arial';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText(this.player.name, screenX, screenY - 20);
+                
+                // HP bar
+                this.renderHealthBar(screenX, screenY + 20, this.player.currentHP, this.player.maxHP);
+            }
+
+            renderEnemies() {
+                this.enemies.forEach(enemy => {
+                    if (enemy.isDead) return;
+                    
+                    const screenX = enemy.x - this.camera.x;
+                    const screenY = enemy.y - this.camera.y;
+                    
+                    // Skip if off-screen
+                    if (screenX < -50 || screenX > this.canvas.width + 50 || 
+                        screenY < -50 || screenY > this.canvas.height + 50) return;
+                    
+                    // Enemy body
+                    this.ctx.fillStyle = enemy === this.selectedTarget ? '#ffff00' : '#2ed573';
+                    this.ctx.fillRect(screenX - 12, screenY - 12, 24, 24);
+                    
+                    // Enemy name
+                    this.ctx.fillStyle = 'white';
+                    this.ctx.font = '10px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText(`${enemy.name} Lv.${enemy.level}`, screenX, screenY - 18);
+                    
+                    // HP bar
+                    this.renderHealthBar(screenX, screenY + 18, enemy.currentHP, enemy.maxHP);
+                    
+                    // Target indicator
+                    if (enemy === this.selectedTarget) {
+                        this.ctx.strokeStyle = '#ffff00';
+                        this.ctx.lineWidth = 2;
+                        this.ctx.strokeRect(screenX - 15, screenY - 15, 30, 30);
+                    }
+                });
+            }
+
+            renderHealthBar(x, y, currentHP, maxHP) {
+                const width = 30;
+                const height = 4;
+                
+                // Background
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                this.ctx.fillRect(x - width/2, y, width, height);
+                
+                // Health fill
+                const hpPercent = currentHP / maxHP;
+                this.ctx.fillStyle = hpPercent > 0.6 ? '#2ed573' : hpPercent > 0.3 ? '#ffa726' : '#ff4757';
+                this.ctx.fillRect(x - width/2, y, width * hpPercent, height);
+            }
+
+            renderEffects() {
+                // Render any floating text or effects here
+                // Implementation would go here for floating damage numbers, etc.
+            }
+
+            // UI Updates
+            updatePlayerUI() {
+                document.getElementById('playerName').textContent = this.player.name;
+                document.getElementById('playerLevel').textContent = this.player.level;
+                document.getElementById('playerHP').textContent = this.player.currentHP;
+                document.getElementById('playerMaxHP').textContent = this.player.maxHP;
+                document.getElementById('playerMP').textContent = this.player.currentMP;
+                document.getElementById('playerMaxMP').textContent = this.player.maxMP;
+                document.getElementById('playerEXP').textContent = this.player.experience;
+                document.getElementById('playerGold').textContent = this.player.gold;
+                
+                const hpPercent = (this.player.currentHP / this.player.maxHP) * 100;
+                const mpPercent = (this.player.currentMP / this.player.maxMP) * 100;
+                
+                document.getElementById('healthFill').style.width = hpPercent + '%';
+                document.getElementById('manaFill').style.width = mpPercent + '%';
+            }
+
+            updateTargetUI() {
+                const targetPanel = document.getElementById('targetPanel');
+                
+                if (this.selectedTarget && !this.selectedTarget.isDead) {
+                    targetPanel.style.display = 'block';
+                    document.getElementById('targetName').textContent = this.selectedTarget.name;
+                    document.getElementById('targetLevel').textContent = this.selectedTarget.level;
+                    document.getElementById('targetHP').textContent = this.selectedTarget.currentHP;
+                    document.getElementById('targetMaxHP').textContent = this.selectedTarget.maxHP;
+                    
+                    const hpPercent = (this.selectedTarget.currentHP / this.selectedTarget.maxHP) * 100;
+                    document.getElementById('targetHealthFill').style.width = hpPercent + '%';
+                } else {
+                    targetPanel.style.display = 'none';
+                }
+            }
+
+            showDeathScreen() {
+                const deathScreen = document.createElement('div');
+                deathScreen.id = 'deathScreen';
+                deathScreen.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.8);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 1000;
+                    color: white;
+                    font-family: Arial, sans-serif;
+                `;
+                
+                deathScreen.innerHTML = `
+                    <h1 style="color: #ff4757; font-size: 48px; margin-bottom: 20px;">GAME OVER</h1>
+                    <p style="font-size: 18px; margin-bottom: 20px;">
+                        Livello: ${this.player.level} | EXP: ${this.player.experience} | Gold: ${this.player.gold}
+                    </p>
+                    <p style="font-size: 16px; color: #ffa726;">
+                        Premi SPACE, ENTER o R per respawnare
+                    </p>
+                `;
+                
+                document.body.appendChild(deathScreen);
+            }
+
+            addChatMessage(sender, message, type = '') {
+                const chatMessages = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                
+                let color = 'white';
+                if (type === 'error') color = '#ff4757';
+                else if (type === 'success') color = '#2ed573';
+                else if (type === 'info') color = '#4a90e2';
+                else if (type === 'warning') color = '#ffa726';
+                
+                messageDiv.style.color = color;
+                messageDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Keep only last 50 messages
+                while (chatMessages.children.length > 50) {
+                    chatMessages.removeChild(chatMessages.firstChild);
+                }
+            }
+
+            createFloatingText(x, y, text, color) {
+                // Simple floating text implementation
+                // This would create animated floating damage numbers
+                console.log(`${text} at (${x}, ${y})`);
+            }
+
+            getDistance(entity1, entity2) {
+                const dx = entity1.x - entity2.x;
+                const dy = entity1.y - entity2.y;
+                return Math.sqrt(dx * dx + dy * dy);
+            }
+
+            // Game loop
+            startGameLoop() {
+                let lastTime = 0;
+                
+                const gameLoop = (currentTime) => {
+                    const deltaTime = currentTime - lastTime;
+                    lastTime = currentTime;
+                    
+                    this.update(deltaTime);
+                    this.render();
+                    
+                    requestAnimationFrame(gameLoop);
+                };
+                
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // Start the game when page loads
+        window.addEventListener('load', () => {
+            new NosTaleGame();
+        });
+    </script>
+</body>
+</html>
