@@ -28,7 +28,7 @@
             touch-action: none;
         }
 
-        /* HUD Elements */
+        /* HUD Elements - Mobile Landscape Optimized */
         #hud {
             position: absolute;
             top: 0;
@@ -39,107 +39,120 @@
             z-index: 10;
         }
 
-        /* Player Info Panel */
+        /* Mobile-First Player Info Panel - Top Left Corner */
         #playerPanel {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #4a90e2;
-            border-radius: 8px;
-            padding: 10px;
+            top: 8px;
+            left: 8px;
+            background: rgba(0, 0, 0, 0.75);
+            border: 1px solid #4a90e2;
+            border-radius: 6px;
+            padding: 6px 8px;
             color: white;
-            min-width: 200px;
+            min-width: 140px;
+            font-size: 11px;
+            backdrop-filter: blur(4px);
         }
 
+        /* Compact Health/Mana Bars for Mobile */
         .health-bar, .mana-bar {
-            width: 150px;
-            height: 15px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            margin: 3px 0;
+            width: 120px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            margin: 2px 0;
             overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .health-fill {
             height: 100%;
-            background: linear-gradient(90deg, #ff4757, #ff3742);
-            border-radius: 8px;
+            background: linear-gradient(90deg, #ff6b6b, #ee5a52);
+            border-radius: 3px;
             transition: width 0.3s ease;
+            box-shadow: 0 0 4px rgba(255, 107, 107, 0.3);
         }
 
         .mana-fill {
             height: 100%;
-            background: linear-gradient(90deg, #3742fa, #2f3542);
-            border-radius: 8px;
+            background: linear-gradient(90deg, #4ecdc4, #45b7b8);
+            border-radius: 3px;
             transition: width 0.3s ease;
+            box-shadow: 0 0 4px rgba(78, 205, 196, 0.3);
         }
 
-        /* Target Panel */
+        /* Compact Target Panel - Top Right */
         #targetPanel {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #e74c3c;
-            border-radius: 8px;
-            padding: 10px;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.75);
+            border: 1px solid #e74c3c;
+            border-radius: 6px;
+            padding: 6px 8px;
             color: white;
-            min-width: 180px;
+            min-width: 120px;
+            font-size: 11px;
             display: none;
+            backdrop-filter: blur(4px);
         }
 
-        /* Action Bar */
+        /* Mobile-Optimized Action Bar - Hidden on Mobile */
         #actionBar {
             position: absolute;
-            bottom: 20px;
+            bottom: 12px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.9);
-            border: 2px solid #4a90e2;
-            border-radius: 10px;
-            padding: 10px;
-            display: flex;
-            gap: 5px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #4a90e2;
+            border-radius: 8px;
+            padding: 6px 8px;
+            display: none; /* Hidden by default, shown only on desktop */
+            gap: 4px;
             align-items: center;
         }
 
         .skill-slot {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             background: rgba(255, 255, 255, 0.1);
-            border: 2px solid #333;
-            border-radius: 5px;
+            border: 1px solid #444;
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 12px;
+            font-size: 11px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            touch-action: manipulation;
         }
 
-        .skill-slot:hover {
+        .skill-slot:hover, .skill-slot:active {
             border-color: #4a90e2;
-            background: rgba(74, 144, 226, 0.2);
+            background: rgba(74, 144, 226, 0.3);
+            transform: scale(1.05);
         }
 
         .skill-slot.selected {
-            border-color: #ffff00;
-            background: rgba(255, 255, 0, 0.1);
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.2);
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
         }
 
-        /* Chat */
+        /* Mobile-Optimized Chat Panel - Minimized by default */
         #chatPanel {
             position: absolute;
-            bottom: 80px;
-            left: 10px;
-            width: 400px;
-            height: 120px;
-            background: rgba(0, 0, 0, 0.8);
+            bottom: 60px;
+            left: 8px;
+            width: 280px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.6);
             border: 1px solid #333;
-            border-radius: 5px;
+            border-radius: 6px;
             overflow: hidden;
+            font-size: 10px;
+            backdrop-filter: blur(2px);
             pointer-events: auto;
         }
 
@@ -199,53 +212,93 @@
             z-index: 20;
         }
 
+        /* Mobile Landscape Joystick - Left Thumb Zone */
         #joystick {
-            width: 120px;
-            height: 120px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 70%);
+            border: 2px solid rgba(255, 255, 255, 0.25);
             border-radius: 50%;
             position: relative;
             touch-action: none;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
         }
 
         #joystickKnob {
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.8);
+            width: 32px;
+            height: 32px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
             border-radius: 50%;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            transition: all 0.1s ease;
+            transition: all 0.08s ease-out;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
         }
 
-        /* Mobile Action Buttons */
+        /* Mobile Action Buttons - Right Thumb Zone Layout */
         #mobileActionButtons {
             position: fixed;
-            bottom: 160px;
+            bottom: 20px;
             right: 20px;
             display: none;
-            flex-direction: column;
-            gap: 10px;
             z-index: 20;
         }
 
-        .mobile-btn {
-            width: 60px;
-            height: 60px;
-            background: rgba(74, 144, 226, 0.8);
-            border: 2px solid #4a90e2;
+        /* Primary Action Button (Attack/Interact) - Most accessible position */
+        .mobile-btn-primary {
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle, rgba(255, 59, 59, 0.9) 0%, rgba(231, 76, 60, 0.8) 100%);
+            border: 2px solid #e74c3c;
             border-radius: 50%;
             color: white;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
-            touch-action: none;
+            touch-action: manipulation;
             user-select: none;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+            transition: all 0.1s ease;
+        }
+
+        .mobile-btn-primary:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 6px rgba(231, 76, 60, 0.6);
+        }
+
+        /* Secondary Action Button (Space/Select) */
+        .mobile-btn-secondary {
+            width: 55px;
+            height: 55px;
+            background: radial-gradient(circle, rgba(74, 144, 226, 0.9) 0%, rgba(52, 152, 219, 0.8) 100%);
+            border: 2px solid #3498db;
+            border-radius: 50%;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+            user-select: none;
+            position: absolute;
+            bottom: 75px;
+            right: 15px;
+            box-shadow: 0 3px 10px rgba(52, 152, 219, 0.4);
+            transition: all 0.1s ease;
+        }
+
+        .mobile-btn-secondary:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 6px rgba(52, 152, 219, 0.6);
         }
 
         .mobile-btn:active {
@@ -253,17 +306,127 @@
             transform: scale(0.95);
         }
 
-        /* Show mobile controls on small screens */
-        @media (max-width: 768px) {
+        /* Mobile Landscape Optimizations */
+        @media (max-width: 768px) and (orientation: landscape), 
+               (max-height: 500px) {
+            
+            /* Show mobile controls in landscape mode */
             #mobileControls, #mobileActionButtons {
-                display: flex;
+                display: block !important;
+            }
+
+            /* Hide desktop action bar on mobile */
+            #actionBar {
+                display: none !important;
             }
             
+            /* Adjust player panel for landscape */
+            #playerPanel {
+                top: 5px;
+                left: 5px;
+                padding: 4px 6px;
+                min-width: 110px;
+                font-size: 10px;
+            }
+
+            .health-bar, .mana-bar {
+                width: 100px;
+                height: 6px;
+                margin: 1px 0;
+            }
+
+            /* Adjust target panel for landscape */
+            #targetPanel {
+                top: 5px;
+                right: 5px;
+                padding: 4px 6px;
+                min-width: 100px;
+                font-size: 10px;
+            }
+            
+            /* Compact chat panel for landscape */
             #chatPanel {
-                width: 300px;
-                height: 100px;
+                width: 220px;
+                height: 60px;
+                bottom: 40px;
+                left: 5px;
+                font-size: 9px;
             }
             
+            /* Position joystick in left thumb zone */
+            #mobileControls {
+                bottom: 25px !important;
+                left: 25px !important;
+            }
+
+            /* Ensure action buttons are in right thumb zone */
+            #mobileActionButtons {
+                bottom: 25px !important;
+                right: 25px !important;
+            }
+
+            /* Hide unnecessary elements on small screens */
+            .desktop-only {
+                display: none !important;
+            }
+        }
+
+        /* Portrait mode adjustments (discourage but support) */
+        @media (max-width: 768px) and (orientation: portrait) {
+            #gameCanvas {
+                height: 60vh; /* Reduce canvas size in portrait */
+            }
+
+            #mobileControls, #mobileActionButtons {
+                display: block !important;
+            }
+
+            #actionBar {
+                display: none !important;
+            }
+
+            /* Add orientation hint */
+            body::before {
+                content: "🔄 Ruota il dispositivo in orizzontale per un'esperienza migliore";
+                position: fixed;
+                top: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(255, 193, 7, 0.9);
+                color: #000;
+                padding: 8px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                z-index: 1000;
+                text-align: center;
+                font-weight: bold;
+            }
+        }
+
+        /* Desktop optimizations */
+        @media (min-width: 769px) {
+            /* Show desktop action bar */
+            #actionBar {
+                display: flex !important;
+            }
+
+            /* Hide mobile controls on desktop */
+            #mobileControls, #mobileActionButtons {
+                display: none !important;
+            }
+
+            /* Larger UI elements on desktop */
+            #playerPanel, #targetPanel {
+                min-width: 180px;
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .health-bar, .mana-bar {
+                width: 140px;
+                height: 10px;
+            }
+
             #chatMessages {
                 height: 70px;
             }
@@ -321,17 +484,23 @@
         </div>
     </div>
 
-    <!-- Mobile Controls -->
+    <!-- Mobile Controls - Landscape Optimized -->
     <div id="mobileControls">
         <div id="joystick">
             <div id="joystickKnob"></div>
         </div>
     </div>
 
+    <!-- Mobile Action Buttons - Right Thumb Zone -->
     <div id="mobileActionButtons">
-        <div class="mobile-btn" id="mobileTargetBtn">🎯</div>
-        <div class="mobile-btn" id="mobileAttackBtn">⚔️</div>
-        <div class="mobile-btn" id="mobileSkillBtn">🔥</div>
+        <!-- Primary Attack Button (Most Important) -->
+        <div class="mobile-btn-primary" id="mobileAttackBtn" title="Attacca/Interagisci">
+            ⚔️
+        </div>
+        <!-- Secondary Select Button -->
+        <div class="mobile-btn-secondary" id="mobileTargetBtn" title="Seleziona Target">
+            🎯
+        </div>
     </div>
 
     <script>
@@ -365,6 +534,7 @@
                 this.initializeEnemies();
                 this.setupEventListeners();
                 this.setupMobileControls();
+                this.optimizeUIForDevice();
                 this.startGameLoop();
                 
                 console.log('🎮 NosTale Clone avviato!');
@@ -466,7 +636,10 @@
                 });
                 
                 // Window resize
-                window.addEventListener('resize', () => this.setupCanvas());
+                window.addEventListener('resize', () => {
+                    this.setupCanvas();
+                    this.optimizeUIForDevice();
+                });
                 
                 // Prevent zoom on mobile
                 document.addEventListener('gesturestart', (e) => e.preventDefault());
@@ -530,23 +703,62 @@
                     joystickKnob.style.transform = 'translate(-50%, -50%)';
                 });
 
-                // Mobile action buttons
-                document.getElementById('mobileTargetBtn').addEventListener('touchstart', (e) => {
+                // Mobile action buttons - Optimized for landscape gaming
+                const targetBtn = document.getElementById('mobileTargetBtn');
+                const attackBtn = document.getElementById('mobileAttackBtn');
+
+                // Target button - Single tap to select nearest enemy
+                targetBtn.addEventListener('touchstart', (e) => {
                     e.preventDefault();
                     this.selectNearestEnemy();
+                    // Visual feedback
+                    targetBtn.style.transform = 'scale(0.9)';
                 });
 
-                document.getElementById('mobileAttackBtn').addEventListener('touchstart', (e) => {
+                targetBtn.addEventListener('touchend', (e) => {
                     e.preventDefault();
-                    if (this.selectedTarget) {
-                        this.isAutoAttacking = true;
-                        this.addChatMessage('System', `⚔️ Auto-attacco su ${this.selectedTarget.name}!`, 'info');
+                    targetBtn.style.transform = 'scale(1)';
+                });
+
+                // Attack button - Enhanced with double-tap detection
+                let attackTapCount = 0;
+                let attackTapTimer = null;
+
+                attackBtn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    attackTapCount++;
+                    
+                    // Visual feedback
+                    attackBtn.style.transform = 'scale(0.9)';
+                    
+                    if (attackTapCount === 1) {
+                        attackTapTimer = setTimeout(() => {
+                            // Single tap - select target if none selected
+                            if (!this.selectedTarget) {
+                                this.selectNearestEnemy();
+                            }
+                            attackTapCount = 0;
+                        }, 300);
+                    } else if (attackTapCount === 2) {
+                        // Double tap - attack target
+                        clearTimeout(attackTapTimer);
+                        if (this.selectedTarget) {
+                            this.isAutoAttacking = true;
+                            this.addChatMessage('System', `⚔️ Auto-attacco su ${this.selectedTarget.name}!`, 'info');
+                        } else {
+                            this.selectNearestEnemy();
+                            if (this.selectedTarget) {
+                                this.isAutoAttacking = true;
+                                this.addChatMessage('System', `⚔️ Attacco ${this.selectedTarget.name}!`, 'info');
+                            }
+                        }
+                        attackTapCount = 0;
                     }
                 });
 
-                document.getElementById('mobileSkillBtn').addEventListener('touchstart', (e) => {
+                attackBtn.addEventListener('touchend', (e) => {
                     e.preventDefault();
-                    this.selectSkill(0); // Seleziona skill 1
+                    attackBtn.style.transform = 'scale(1)';
                 });
             }
 
@@ -1194,6 +1406,68 @@
                 const dx = entity1.x - entity2.x;
                 const dy = entity1.y - entity2.y;
                 return Math.sqrt(dx * dx + dy * dy);
+            }
+
+            // Optimize UI sizes for different screen sizes
+            optimizeUIForDevice() {
+                if (!this.isMobile) return;
+
+                const screenWidth = window.innerWidth;
+                const screenHeight = window.innerHeight;
+                const isLandscape = screenWidth > screenHeight;
+
+                if (isLandscape) {
+                    // Landscape mode optimizations
+                    const joystick = document.getElementById('joystick');
+                    const attackBtn = document.getElementById('mobileAttackBtn');
+                    const targetBtn = document.getElementById('mobileTargetBtn');
+
+                    // Adjust sizes based on screen size
+                    if (screenWidth < 600) {
+                        // Small screens (phones)
+                        joystick.style.width = '80px';
+                        joystick.style.height = '80px';
+                        attackBtn.style.width = '60px';
+                        attackBtn.style.height = '60px';
+                        targetBtn.style.width = '45px';
+                        targetBtn.style.height = '45px';
+                    } else if (screenWidth < 900) {
+                        // Medium screens (small tablets)
+                        joystick.style.width = '90px';
+                        joystick.style.height = '90px';
+                        attackBtn.style.width = '65px';
+                        attackBtn.style.height = '65px';
+                        targetBtn.style.width = '50px';
+                        targetBtn.style.height = '50px';
+                    }
+
+                    // Adjust positioning for safe areas (notches, etc.)
+                    const mobileControls = document.getElementById('mobileControls');
+                    const mobileActions = document.getElementById('mobileActionButtons');
+                    
+                    // Add safe area padding
+                    mobileControls.style.paddingLeft = 'env(safe-area-inset-left, 20px)';
+                    mobileActions.style.paddingRight = 'env(safe-area-inset-right, 20px)';
+                }
+
+                // Add haptic feedback if available
+                this.setupHapticFeedback();
+            }
+
+            setupHapticFeedback() {
+                // Add vibration feedback for mobile interactions
+                if (navigator.vibrate && this.isMobile) {
+                    const attackBtn = document.getElementById('mobileAttackBtn');
+                    const targetBtn = document.getElementById('mobileTargetBtn');
+
+                    attackBtn.addEventListener('touchstart', () => {
+                        navigator.vibrate(50); // Short vibration for attack
+                    });
+
+                    targetBtn.addEventListener('touchstart', () => {
+                        navigator.vibrate(25); // Shorter vibration for target
+                    });
+                }
             }
 
             // Game loop
