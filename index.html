@@ -1837,17 +1837,25 @@
                     return;
                 }
                 
-                // Select server
+                // Remove previous selection
                 document.querySelectorAll('.server-card').forEach(card => {
                     card.classList.remove('selected');
                 });
-                serverCard.classList.add('selected');
                 
-                // Save server selection and proceed
+                // Select new server
+                serverCard.classList.add('selected');
+                this.selectedServer = serverId;
+                
+                // Update server name display
+                const serverName = serverCard.querySelector('h3').textContent;
+                document.getElementById('selected-server').textContent = serverName;
+                
+                // Auto-proceed to characters after selection (like main version)
                 setTimeout(() => {
-                    Storage.data.account.selectedServer = serverId;
-                    Storage.saveData();
-                    this.showScreen('characters');
+                    this.showMessage('Connesso al server!', 'success');
+                    setTimeout(() => {
+                        this.showScreen('characters');
+                    }, 1000);
                 }, 500);
             }
 
