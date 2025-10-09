@@ -3,254 +3,319 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NosTale Clone - Mobile MMO</title>
-    
-    <!-- External CSS -->
+    <title>DRAKORIA - NosTale Mobile</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
-    <!-- Web Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Prevent caching for development -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <!-- Game Scripts -->
+    <script src="js/gameData.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
 </head>
 <body>
-    <!-- Game Canvas -->
-    <canvas id="gameCanvas"></canvas>
-    
-    <!-- Game HUD -->
-    <div id="hud">
-        <!-- Player Panel - Top Left -->
-        <div id="playerPanel">
-            <div class="player-info">
-                <strong id="playerName">Adventurer</strong> (Lv.<span id="playerLevel">1</span>)
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="screen active">
+        <div class="loading-content">
+            <div class="game-logo">
+                <h1>🐉 DRAKORIA</h1>
+                <p>NosTale Mobile Edition</p>
             </div>
-            <div class="health-bar">
-                <div class="health-fill" id="healthFill" style="width: 100%"></div>
+            <div class="loading-bar-container">
+                <div id="loading-bar" class="loading-bar"></div>
             </div>
-            <div class="mana-bar">
-                <div class="mana-fill" id="manaFill" style="width: 100%"></div>
-            </div>
-            <div class="exp-info">
-                EXP: <span id="playerExp">0</span> | Gold: <span id="playerGold">100</span>
-            </div>
-        </div>
-
-        <!-- Target Panel - Top Right -->
-        <div id="targetPanel">
-            <div class="target-info">
-                <strong id="targetName">Slime</strong> (Lv.<span id="targetLevel">1</span>)
-            </div>
-            <div class="health-bar">
-                <div class="health-fill" id="targetHealthFill" style="width: 100%"></div>
-            </div>
-        </div>
-
-        <!-- Mini-Map -->
-        <div id="miniMap">
-            <canvas id="miniMapCanvas" width="120" height="120"></canvas>
-        </div>
-
-        <!-- Mobile UI Toggle Buttons -->
-        <button id="inventoryBtn" class="ui-toggle-btn" onclick="toggleInventory()">🎒</button>
-        <button id="settingsBtn" class="ui-toggle-btn" onclick="toggleSettings()">⚙️</button>
-        <button id="guildBtn" class="ui-toggle-btn" onclick="toggleGuild()">👥</button>
-
-        <!-- Desktop Action Bar -->
-        <div id="actionBar">
-            <div class="skill-slot" data-key="1">1</div>
-            <div class="skill-slot" data-key="2">2</div>
-            <div class="skill-slot" data-key="3">3</div>
-            <div class="skill-slot" data-key="4">4</div>
-            <div class="skill-slot selected" data-key="5">ATK</div>
-        </div>
-
-        <!-- Chat Panel -->
-        <div id="chatPanel">
-            <div class="chat-tabs">
-                <button class="chat-tab active" onclick="switchChatTab('general')">All</button>
-                <button class="chat-tab" onclick="switchChatTab('guild')">Guild</button>
-                <button class="chat-tab" onclick="switchChatTab('party')">Party</button>
-                <button class="chat-tab" onclick="switchChatTab('trade')">Trade</button>
-            </div>
-            <div id="chatMessages"></div>
-            <input type="text" id="chatInput" placeholder="Type message..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+            <p id="loading-status">Caricamento...</p>
+            <button id="skip-loading" class="btn secondary" onclick="if(window.UI) UI.showScreen('login')" style="margin-top: 20px;">
+                Skip Loading (Dev)
+            </button>
         </div>
     </div>
 
-    <!-- Mobile Controls -->
-    <div id="mobileControls">
-        <div id="joystick">
-            <div id="joystickKnob"></div>
-        </div>
-    </div>
-
-    <!-- Mobile Action Buttons -->
-    <div id="mobileActionButtons">
-        <button class="mobile-btn-primary" id="attackBtn">⚔️</button>
-        <button class="mobile-btn-secondary" id="spaceBtn">⭐</button>
-    </div>
-
-    <!-- Inventory Panel -->
-    <div id="inventoryPanel">
-        <div class="inventory-header">
-            <span>Inventory</span>
-            <button class="close-btn" onclick="toggleInventory()">×</button>
-        </div>
-        <div class="inventory-grid" id="inventoryGrid">
-            <!-- Grid slots will be generated by JavaScript -->
-        </div>
-    </div>
-
-    <!-- Settings Panel -->
-    <div id="settingsPanel">
-        <div class="inventory-header">
-            <span>Settings</span>
-            <button class="close-btn" onclick="toggleSettings()">×</button>
-        </div>
-        <div class="settings-content">
-            <div class="setting-group">
-                <h3>Game Controls</h3>
-                <div class="setting-item">
-                    <span>Vibration</span>
-                    <input type="checkbox" id="vibrationToggle" onchange="updateSetting('vibrationToggle', this.checked)">
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen">
+        <div class="login-container">
+            <div class="game-logo">
+                <h1>🐉 DRAKORIA</h1>
+                <p>Entra nel mondo di Drakoria</p>
+            </div>
+            
+            <div class="login-form">
+                <div class="form-group">
+                    <label for="username">Nome Utente</label>
+                    <input type="text" id="username" placeholder="Inserisci il tuo nome utente" maxlength="12">
                 </div>
-                <div class="setting-item">
-                    <span>Auto Attack</span>
-                    <input type="checkbox" id="autoAttackToggle" onchange="updateSetting('autoAttackToggle', this.checked)">
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Inserisci la password" maxlength="20">
                 </div>
-                <div class="setting-item">
-                    <span>Show Minimap</span>
-                    <input type="checkbox" id="showMinimapToggle" onchange="updateSetting('showMinimapToggle', this.checked)">
+                
+                <div class="form-actions">
+                    <button id="login-btn" class="btn btn-primary">ACCEDI</button>
+                    <button id="register-btn" class="btn btn-secondary">REGISTRATI</button>
+                </div>
+                
+                <div class="guest-access">
+                    <button id="guest-btn" class="btn btn-guest">Gioca come Ospite</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Server Selection Screen -->
+    <div id="server-screen" class="screen">
+        <div class="server-container">
+            <h2>📡 Seleziona Server</h2>
+            
+            <div class="servers-list">
+                <div class="server-card" data-server="drakonia">
+                    <div class="server-status online"></div>
+                    <div class="server-info">
+                        <h3>🏰 Drakonia</h3>
+                        <p>Server Principale</p>
+                        <span class="server-population">Online: 1,245</span>
+                    </div>
+                    <div class="server-ping">25ms</div>
+                </div>
+                
+                <div class="server-card" data-server="valentia">
+                    <div class="server-status online"></div>
+                    <div class="server-info">
+                        <h3>⚔️ Valentia</h3>
+                        <p>Server PvP</p>
+                        <span class="server-population">Online: 892</span>
+                    </div>
+                    <div class="server-ping">41ms</div>
+                </div>
+                
+                <div class="server-card" data-server="mystral">
+                    <div class="server-status maintenance"></div>
+                    <div class="server-info">
+                        <h3>🔮 Mystral</h3>
+                        <p>Server Magico</p>
+                        <span class="server-population">Manutenzione</span>
+                    </div>
+                    <div class="server-ping">--</div>
                 </div>
             </div>
             
-            <div class="setting-group">
-                <h3>Interface</h3>
-                <div class="setting-item">
-                    <span>Joystick Size: <span id="joystickSizeSliderValue">1.0</span></span>
-                    <input type="range" id="joystickSizeSlider" min="0.5" max="2.0" step="0.1" value="1.0" 
-                           oninput="updateSetting('joystickSizeSlider', parseFloat(this.value))">
+            <div class="server-actions">
+                <button id="server-back-btn" class="btn btn-back">← Indietro</button>
+                <button id="server-select-btn" class="btn btn-primary" disabled>Entra nel Server</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Character Selection Screen -->
+    <div id="character-screen" class="screen">
+        <div class="character-container">
+            <div class="character-header">
+                <h2>👤 Personaggi</h2>
+                <div class="server-info-mini">Server: <span id="selected-server">Drakonia</span></div>
+            </div>
+            
+            <div class="character-slots">
+                <!-- Slot 1 -->
+                <div class="character-slot" data-slot="1">
+                    <div class="slot-empty">
+                        <div class="create-character-icon">+</div>
+                        <p>Crea Personaggio</p>
+                    </div>
                 </div>
-                <div class="setting-item">
-                    <span>UI Scale: <span id="uiScaleSliderValue">1.0</span></span>
-                    <input type="range" id="uiScaleSlider" min="0.8" max="1.5" step="0.1" value="1.0"
-                           oninput="updateSetting('uiScaleSlider', parseFloat(this.value))">
+                
+                <!-- Slot 2 -->
+                <div class="character-slot" data-slot="2">
+                    <div class="slot-empty">
+                        <div class="create-character-icon">+</div>
+                        <p>Crea Personaggio</p>
+                    </div>
                 </div>
-                <div class="setting-item">
-                    <span>Chat Auto Scroll</span>
-                    <input type="checkbox" id="chatAutoScrollToggle" onchange="updateSetting('chatAutoScrollToggle', this.checked)">
+                
+                <!-- Slot 3 -->
+                <div class="character-slot" data-slot="3">
+                    <div class="slot-empty">
+                        <div class="create-character-icon">+</div>
+                        <p>Crea Personaggio</p>
+                    </div>
+                </div>
+                
+                <!-- Slot 4 -->
+                <div class="character-slot" data-slot="4">
+                    <div class="slot-empty">
+                        <div class="create-character-icon">+</div>
+                        <p>Crea Personaggio</p>
+                    </div>
                 </div>
             </div>
             
-            <div class="setting-group">
-                <h3>Audio</h3>
-                <div class="setting-item">
-                    <span>Sound Effects</span>
-                    <input type="checkbox" id="soundEffectsToggle" onchange="updateSetting('soundEffectsToggle', this.checked)">
-                </div>
-                <div class="setting-item">
-                    <span>Volume: <span id="volumeSliderValue">50%</span></span>
-                    <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.5"
-                           oninput="updateSetting('volumeSlider', parseFloat(this.value))">
-                </div>
+            <div class="character-actions">
+                <button id="char-back-btn" class="btn btn-back">← Server</button>
+                <button id="char-delete-btn" class="btn btn-danger" disabled>🗑️ Elimina</button>
+                <button id="char-play-btn" class="btn btn-primary" disabled>▶️ Gioca</button>
             </div>
         </div>
     </div>
 
-    <!-- Guild Panel -->
-    <div id="guildPanel">
-        <div class="guild-header">
-            <span>Guild: [DragonSlayers]</span>
-            <button class="close-btn" onclick="toggleGuild()">×</button>
-        </div>
-        <div class="guild-content">
-            <div style="margin-bottom: 16px;">
-                <button onclick="addGuildMember()" style="background: #4a90e2; border: none; color: white; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
-                    Add Member
-                </button>
-            </div>
-            <div id="guildMembersList">
-                <!-- Guild members will be populated by JavaScript -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Game JavaScript Modules -->
-    <script src="js/gameData.js"></script>
-    <script src="js/inventory.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/combat.js"></script>
-    <script src="js/movement.js"></script>
-    <script src="js/mapLoader.js"></script>
-    <script src="js/main.js"></script>
-
-    <!-- Game Initialization -->
-    <script>
-        // Global variables for UI controls
-        let game;
-
-        // Global functions for UI controls
-        function toggleInventory() {
-            if (game && game.toggleInventory) {
-                game.toggleInventory();
-            }
-        }
-
-        function toggleSettings() {
-            if (game && game.toggleSettings) {
-                game.toggleSettings();
-            }
-        }
-
-        function toggleGuild() {
-            if (game && game.toggleGuild) {
-                game.toggleGuild();
-            }
-        }
-
-        function switchChatTab(tabName) {
-            if (game && game.switchChatTab) {
-                game.switchChatTab(tabName);
-            }
-        }
-
-        function sendChatMessage() {
-            if (game && game.sendChatMessage) {
-                game.sendChatMessage();
-            }
-        }
-
-        function addGuildMember() {
-            if (game && game.addGuildMember) {
-                game.addGuildMember();
-            }
-        }
-
-        function updateSetting(elementId, value) {
-            if (game && game.updateSetting) {
-                game.updateSetting(elementId, value);
-            }
-        }
-
-        // Initialize the game when page loads
-        window.addEventListener('load', () => {
-            try {
-                game = new NosTaleGame();
-                window.game = game; // Make it globally accessible
-                console.log('🎮 NosTale Clone initialized successfully!');
-            } catch (error) {
-                console.error('❌ Failed to initialize game:', error);
-                document.body.innerHTML = `
-                    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; color: white; font-family: Arial; text-align: center;">
-                        <div>
-                            <h1>🚫 Game Failed to Load</h1>
-                            <p>Error: ${error.message}</p>
-                            <button onclick="location.reload()" style="padding: 10px 20px; margin-top: 20px; background: #4a90e2; border: none; color: white; border-radius: 4px; cursor: pointer;">
-                                Reload Game
-                            </button>
+    <!-- Character Creation Screen -->
+    <div id="creation-screen" class="screen">
+        <div class="creation-container">
+            <h2>✨ Crea Personaggio</h2>
+            
+            <div class="creation-form">
+                <div class="form-group">
+                    <label for="char-name">Nome Personaggio</label>
+                    <input type="text" id="char-name" placeholder="Inserisci nome (3-12 caratteri)" maxlength="12">
+                    <div class="name-availability" id="name-availability"></div>
+                </div>
+                
+                <div class="class-selection">
+                    <h3>Scegli la Classe</h3>
+                    <div class="class-options">
+                        <div class="class-option" data-class="swordsman">
+                            <div class="class-preview">
+                                <div class="class-icon">⚔️</div>
+                                <h4>Spadaccino</h4>
+                            </div>
+                            <div class="class-stats">
+                                <div class="stat">ATK: ⭐⭐⭐⭐⭐</div>
+                                <div class="stat">DEF: ⭐⭐⭐⭐</div>
+                                <div class="stat">SPD: ⭐⭐⭐</div>
+                            </div>
+                            <p>Specialista nel combattimento ravvicinato con alta resistenza</p>
+                        </div>
+                        
+                        <div class="class-option" data-class="archer">
+                            <div class="class-preview">
+                                <div class="class-icon">🏹</div>
+                                <h4>Arciere</h4>
+                            </div>
+                            <div class="class-stats">
+                                <div class="stat">ATK: ⭐⭐⭐⭐</div>
+                                <div class="stat">DEF: ⭐⭐</div>
+                                <div class="stat">SPD: ⭐⭐⭐⭐⭐</div>
+                            </div>
+                            <p>Attacchi precisi a distanza con alta velocità</p>
+                        </div>
+                        
+                        <div class="class-option" data-class="mage">
+                            <div class="class-preview">
+                                <div class="class-icon">🔮</div>
+                                <h4>Mago</h4>
+                            </div>
+                            <div class="class-stats">
+                                <div class="stat">ATK: ⭐⭐⭐⭐⭐</div>
+                                <div class="stat">DEF: ⭐⭐</div>
+                                <div class="stat">SPD: ⭐⭐⭐</div>
+                            </div>
+                            <p>Padrone degli elementi con potenti incantesimi</p>
                         </div>
                     </div>
-                `;
-            }
-        });
-    </script>
+                </div>
+            </div>
+            
+            <div class="creation-actions">
+                <button id="creation-back-btn" class="btn btn-back">← Indietro</button>
+                <button id="creation-create-btn" class="btn btn-primary" disabled>Crea Personaggio</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+        <div id="game-container" class="game-container">
+            <!-- Main Game Canvas -->
+            <canvas id="game-canvas" class="game-canvas"></canvas>
+            
+            <!-- Game HUD -->
+            <div class="game-hud">
+                <!-- Top HUD -->
+                <div class="hud-top">
+                    <div class="game-menu">
+                        <button id="game-menu-btn" class="btn btn-back game-back-btn">📱 Menu</button>
+                    </div>
+                    <div class="player-info">
+                        <div class="player-avatar">
+                            <div id="player-class-icon" class="class-icon">⚔️</div>
+                            <div id="player-level" class="level-badge">1</div>
+                        </div>
+                        <div class="player-stats">
+                            <div class="stat-bar hp-bar">
+                                <div id="hp-fill" class="bar-fill"></div>
+                                <span id="hp-text" class="bar-text">100/100</span>
+                            </div>
+                            <div class="stat-bar mp-bar">
+                                <div id="mp-fill" class="bar-fill"></div>
+                                <span id="mp-text" class="bar-text">50/50</span>
+                            </div>
+                            <div class="stat-bar exp-bar">
+                                <div id="exp-fill" class="bar-fill"></div>
+                                <span id="exp-text" class="bar-text">0/100</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="game-menu">
+                        <button id="menu-btn" class="hud-btn">⚙️</button>
+                        <button id="inventory-btn" class="hud-btn">🎒</button>
+                        <button id="character-btn" class="hud-btn">👤</button>
+                    </div>
+                </div>
+                
+                <!-- Bottom HUD -->
+                <div class="hud-bottom">
+                    <!-- Movement Joystick -->
+                    <div class="joystick-container">
+                        <div id="joystick" class="joystick">
+                            <div class="joystick-knob"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Skill Buttons -->
+                    <div class="skills-container">
+                        <button class="skill-btn" data-skill="q">
+                            <div class="skill-icon">⚔️</div>
+                            <div class="skill-cooldown"></div>
+                        </button>
+                        <button class="skill-btn" data-skill="w">
+                            <div class="skill-icon">🛡️</div>
+                            <div class="skill-cooldown"></div>
+                        </button>
+                        <button class="skill-btn" data-skill="e">
+                            <div class="skill-icon">💥</div>
+                            <div class="skill-cooldown"></div>
+                        </button>
+                        <button class="skill-btn" data-skill="r">
+                            <div class="skill-icon">✨</div>
+                            <div class="skill-cooldown"></div>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Chat -->
+                <div id="chat-panel" class="chat-panel collapsed">
+                    <div class="chat-header">
+                        <span>💬 Chat</span>
+                        <button id="chat-toggle" class="chat-toggle">▼</button>
+                    </div>
+                    <div class="chat-content">
+                        <div id="chat-messages" class="chat-messages"></div>
+                        <div class="chat-input-container">
+                            <input id="chat-input" type="text" placeholder="Scrivi messaggio...">
+                            <button id="chat-send" class="chat-send">📤</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
