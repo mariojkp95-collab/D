@@ -1167,85 +1167,264 @@
     </div>
 
     <script>
-        // DRAKORIA - Embedded JavaScript
+        // DRAKORIA - Complete Embedded JavaScript (Identical to main version)
         
-        // Game Data
+        // GameData.js - IDENTICAL COPY
         const GameData = {
+            // Character Classes (based on NosTale)
             classes: {
                 swordsman: {
                     name: 'Spadaccino',
-                    icon: '⚔️',
                     description: 'Maestro del combattimento corpo a corpo con alta difesa e attacco fisico',
-                    stats: { str: 15, agi: 8, int: 5, vit: 12 }
+                    icon: '⚔️',
+                    primaryStat: 'attack',
+                    baseStats: {
+                        hp: 180,
+                        mp: 40,
+                        attack: 25,
+                        defense: 20,
+                        magic: 8,
+                        speed: 15,
+                        luck: 10
+                    },
+                    statGrowth: {
+                        hp: 12,
+                        mp: 3,
+                        attack: 3,
+                        defense: 2,
+                        magic: 1,
+                        speed: 1,
+                        luck: 1
+                    },
+                    skills: [
+                        { id: 'q', name: 'Colpo di Spada', icon: '⚔️', damage: 120, cost: 0, cooldown: 0, level: 1 },
+                        { id: 'w', name: 'Scudo', icon: '🛡️', damage: 0, cost: 15, cooldown: 8, level: 5, effect: 'defense' },
+                        { id: 'e', name: 'Attacco Poderoso', icon: '💥', damage: 200, cost: 25, cooldown: 6, level: 10 },
+                        { id: 'r', name: 'Furia Berserker', icon: '✨', damage: 0, cost: 40, cooldown: 30, level: 15, effect: 'berserk' }
+                    ]
                 },
+                
                 archer: {
-                    name: 'Arciere', 
-                    icon: '🏹',
+                    name: 'Arciere',
                     description: 'Esperto di attacchi a distanza con alta velocità e precisione',
-                    stats: { str: 8, agi: 15, int: 7, vit: 10 }
+                    icon: '🏹',
+                    primaryStat: 'speed',
+                    baseStats: {
+                        hp: 140,
+                        mp: 60,
+                        attack: 22,
+                        defense: 12,
+                        magic: 10,
+                        speed: 25,
+                        luck: 15
+                    },
+                    statGrowth: {
+                        hp: 8,
+                        mp: 5,
+                        attack: 2,
+                        defense: 1,
+                        magic: 1,
+                        speed: 3,
+                        luck: 2
+                    },
+                    skills: [
+                        { id: 'q', name: 'Tiro con Arco', icon: '🏹', damage: 100, cost: 0, cooldown: 0, level: 1 },
+                        { id: 'w', name: 'Tiro Multiplo', icon: '🎯', damage: 80, cost: 20, cooldown: 5, level: 5, effect: 'multi' },
+                        { id: 'e', name: 'Freccia Esplosiva', icon: '💥', damage: 180, cost: 30, cooldown: 8, level: 10 },
+                        { id: 'r', name: 'Occhio di Falco', icon: '✨', damage: 0, cost: 35, cooldown: 25, level: 15, effect: 'precision' }
+                    ]
                 },
+                
                 mage: {
                     name: 'Mago',
-                    icon: '🔮', 
                     description: 'Padrone degli elementi magici con devastanti incantesimi',
-                    stats: { str: 5, agi: 10, int: 15, vit: 8 }
+                    icon: '🔮',
+                    primaryStat: 'magic',
+                    baseStats: {
+                        hp: 100,
+                        mp: 100,
+                        attack: 15,
+                        defense: 8,
+                        magic: 30,
+                        speed: 18,
+                        luck: 12
+                    },
+                    statGrowth: {
+                        hp: 6,
+                        mp: 8,
+                        attack: 1,
+                        defense: 1,
+                        magic: 4,
+                        speed: 2,
+                        luck: 1
+                    },
+                    skills: [
+                        { id: 'q', name: 'Dardo Magico', icon: '🔮', damage: 110, cost: 8, cooldown: 0, level: 1 },
+                        { id: 'w', name: 'Palla di Fuoco', icon: '🔥', damage: 160, cost: 25, cooldown: 4, level: 5 },
+                        { id: 'e', name: 'Fulmine', icon: '💥', damage: 220, cost: 35, cooldown: 6, level: 10 },
+                        { id: 'r', name: 'Meteora', icon: '✨', damage: 300, cost: 60, cooldown: 15, level: 15 }
+                    ]
+                }
+            },
+
+            // Experience Table (NosTale-style exponential growth)
+            experienceTable: (() => {
+                const table = [0]; // Level 0
+                for (let level = 1; level <= 99; level++) {
+                    if (level === 1) {
+                        table.push(100);
+                    } else {
+                        // Exponential growth similar to NosTale
+                        const baseExp = 100;
+                        const multiplier = Math.pow(1.12, level - 1);
+                        const levelExp = Math.floor(baseExp * multiplier);
+                        table.push(table[level - 1] + levelExp);
+                    }
+                }
+                return table;
+            })(),
+
+            // Utility Functions
+            utils: {
+                calculateStats(className, level) {
+                    const classData = GameData.classes[className];
+                    if (!classData) return null;
+
+                    const stats = { ...classData.baseStats };
+                    const growth = classData.statGrowth;
+
+                    // Apply level-based growth
+                    for (const stat in growth) {
+                        stats[stat] += growth[stat] * (level - 1);
+                    }
+
+                    return stats;
                 }
             }
         };
 
-        // Storage System
-        class Storage {
-            static init() {
-                if (!localStorage.getItem('drakoria_data')) {
-                    const defaultData = {
-                        accounts: {},
-                        currentAccount: null,
-                        characters: {
-                            slot1: null, slot2: null, slot3: null, slot4: null
-                        },
-                        selectedCharacter: null,
-                        gameSettings: {
-                            soundEnabled: true,
-                            musicEnabled: true,
-                            graphicsQuality: 'medium'
-                        }
-                    };
-                    localStorage.setItem('drakoria_data', JSON.stringify(defaultData));
-                }
-                return true;
-            }
-
-            static getData() {
-                return JSON.parse(localStorage.getItem('drakoria_data'));
-            }
-
-            static saveData() {
-                const data = this.getData();
-                localStorage.setItem('drakoria_data', JSON.stringify(data));
-            }
-
-            static loginAsGuest() {
-                const data = this.getData();
-                const guestAccount = {
-                    username: 'Guest_' + Date.now(),
-                    type: 'guest',
-                    createdAt: Date.now(),
-                    lastLogin: Date.now()
+        // Storage.js - IDENTICAL COPY
+        class StorageManager {
+            constructor() {
+                this.storageKey = 'drakoria_data';
+                this.defaultData = {
+                    account: {
+                        username: null,
+                        isGuest: false,
+                        selectedServer: null,
+                        loginTime: null
+                    },
+                    characters: {
+                        slot1: null,
+                        slot2: null,
+                        slot3: null,
+                        slot4: null
+                    },
+                    settings: {
+                        soundEnabled: true,
+                        musicEnabled: true,
+                        graphicsQuality: 'medium',
+                        language: 'it',
+                        notifications: true
+                    },
+                    gameData: {
+                        achievments: [],
+                        playTime: 0,
+                        lastPlayed: null
+                    }
                 };
-                data.currentAccount = guestAccount;
-                localStorage.setItem('drakoria_data', JSON.stringify(data));
-                return true;
+                
+                this.data = this.loadData();
+                console.log('💾 Storage Manager inizializzato');
             }
 
-            static createCharacter(slot, characterData) {
-                if (slot < 1 || slot > 4) return false;
+            // Load data from localStorage
+            loadData() {
+                try {
+                    const saved = localStorage.getItem(this.storageKey);
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        // Merge with defaults to handle new fields
+                        return this.mergeWithDefaults(parsed, this.defaultData);
+                    }
+                } catch (error) {
+                    console.error('❌ Errore caricamento dati:', error);
+                }
                 
+                return { ...this.defaultData };
+            }
+
+            // Save data to localStorage
+            saveData() {
+                try {
+                    localStorage.setItem(this.storageKey, JSON.stringify(this.data));
+                    console.log('💾 Dati salvati correttamente');
+                    return true;
+                } catch (error) {
+                    console.error('❌ Errore salvataggio dati:', error);
+                    return false;
+                }
+            }
+
+            // Merge saved data with defaults (for backward compatibility)
+            mergeWithDefaults(saved, defaults) {
+                const merged = { ...defaults };
+                
+                for (const key in saved) {
+                    if (typeof saved[key] === 'object' && saved[key] !== null && !Array.isArray(saved[key])) {
+                        merged[key] = this.mergeWithDefaults(saved[key], defaults[key] || {});
+                    } else {
+                        merged[key] = saved[key];
+                    }
+                }
+                
+                return merged;
+            }
+
+            // Account Management
+            setAccount(username, isGuest = false, server = null) {
+                this.data.account = {
+                    username: username,
+                    isGuest: isGuest,
+                    selectedServer: server,
+                    loginTime: Date.now()
+                };
+                this.saveData();
+                console.log(`👤 Account impostato: ${username} (Guest: ${isGuest})`);
+            }
+
+            getAccount() {
+                return this.data.account;
+            }
+
+            isLoggedIn() {
+                return this.data.account.username !== null;
+            }
+
+            logout() {
+                this.data.account = {
+                    username: null,
+                    isGuest: false,
+                    selectedServer: null,
+                    loginTime: null
+                };
+                this.saveData();
+                console.log('👤 Logout completato');
+            }
+
+            // Character Management
+            createCharacter(slot, characterData) {
+                if (slot < 1 || slot > 4) {
+                    console.error('❌ Slot personaggio non valido:', slot);
+                    return false;
+                }
+
                 const character = {
                     name: characterData.name,
                     class: characterData.class,
                     level: 1,
                     experience: 0,
-                    stats: GameData.classes[characterData.class].stats,
+                    stats: GameData.utils.calculateStats(characterData.class, 1),
                     position: { x: 400, y: 300 },
                     inventory: [],
                     equipment: {},
@@ -1255,151 +1434,401 @@
                     playTime: 0
                 };
 
-                character.currentHp = 100;
-                character.currentMp = 50;
+                // Set current HP/MP to max
+                character.currentHp = character.stats.hp;
+                character.currentMp = character.stats.mp;
 
-                const data = this.getData();
-                data.characters[`slot${slot}`] = character;
-                localStorage.setItem('drakoria_data', JSON.stringify(data));
+                this.data.characters[`slot${slot}`] = character;
+                this.saveData();
+                
+                console.log(`✨ Personaggio creato nello slot ${slot}:`, character);
                 return true;
             }
 
-            static findFirstEmptySlot() {
-                const data = this.getData();
+            getCharacter(slot) {
+                if (slot < 1 || slot > 4) return null;
+                return this.data.characters[`slot${slot}`];
+            }
+
+            findFirstEmptySlot() {
                 for (let i = 1; i <= 4; i++) {
-                    if (!data.characters[`slot${i}`]) {
+                    if (!this.data.characters[`slot${i}`]) {
                         return i;
                     }
                 }
-                return null;
+                return null; // Tutti gli slot sono occupati
             }
 
-            static isCharacterNameAvailable(name) {
-                if (!name || name.length < 3 || name.length > 12) return false;
-                if (!/^[a-zA-Z0-9_]+$/.test(name)) return false;
+            deleteCharacter(slot) {
+                if (slot < 1 || slot > 4) {
+                    console.error('❌ Slot personaggio non valido:', slot);
+                    return false;
+                }
+
+                this.data.characters[`slot${slot}`] = null;
+                this.saveData();
                 
-                const data = this.getData();
+                console.log(`🗑️ Personaggio eliminato dallo slot ${slot}`);
+                return true;
+            }
+
+            // Character name validation
+            isCharacterNameAvailable(name) {
+                if (!name || name.length < 3 || name.length > 12) return false;
+                
+                // Check if name contains only valid characters
+                const validName = /^[a-zA-Z0-9_]+$/.test(name);
+                if (!validName) return false;
+                
+                // Check if name is already used
                 for (let i = 1; i <= 4; i++) {
-                    const character = data.characters[`slot${i}`];
+                    const character = this.getCharacter(i);
                     if (character && character.name.toLowerCase() === name.toLowerCase()) {
                         return false;
                     }
                 }
+                
+                // Check against reserved names
+                const reservedNames = ['admin', 'system', 'drakoria', 'nostale', 'guest', 'null', 'undefined'];
+                if (reservedNames.includes(name.toLowerCase())) return false;
+                
                 return true;
-            }
-
-            static selectCharacter(name) {
-                const data = this.getData();
-                data.selectedCharacter = name;
-                localStorage.setItem('drakoria_data', JSON.stringify(data));
-            }
-
-            static findCharacterInSlot(slot) {
-                const data = this.getData();
-                return data.characters[`slot${slot}`];
             }
         }
 
-        // UI Manager
+        // Global storage instance
+        window.Storage = new StorageManager();
+
+        // UI.js - IDENTICAL COPY
         class UIManager {
             constructor() {
                 this.currentScreen = 'loading';
-                this.selectedServer = null;
-                this.selectedClass = null;
-                this.selectedCharacterSlot = null;
+                this.screens = {};
+                this.fadeTransition = false;
+                this.mobileDetected = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
                 
-                // Initialize storage
-                Storage.init();
+                console.log('🎮 UI Manager inizializzato');
+                console.log('📱 Mobile device:', this.mobileDetected);
                 
-                this.initializeEvents();
-                this.startLoadingSequence();
+                this.initializeScreens();
+                this.setupEventListeners();
+                this.setupMobileFeatures();
             }
 
-            initializeEvents() {
-                // Guest login
-                document.getElementById('guest-btn').addEventListener('click', () => this.handleGuestLogin());
-                
-                // Server selection
+            // Initialize screen references
+            initializeScreens() {
+                this.screens = {
+                    loading: document.getElementById('loading-screen'),
+                    login: document.getElementById('login-screen'),
+                    servers: document.getElementById('server-screen'),
+                    characters: document.getElementById('character-screen'),
+                    creation: document.getElementById('creation-screen'),
+                    game: document.getElementById('game-screen')
+                };
+
+                // Validate all screens exist with detailed logging
+                console.log('🔍 Cercando schermate...');
+                for (const [name, element] of Object.entries(this.screens)) {
+                    if (!element) {
+                        console.error(`❌ Schermata mancante: ${name}`);
+                        console.log(`   -> Cercando elemento con ID: ${name === 'servers' ? 'server-screen' : name === 'characters' ? 'character-screen' : name + '-screen'}`);
+                    } else {
+                        console.log(`✅ Schermata trovata: ${name}`, element);
+                    }
+                }
+
+                console.log('📋 Schermate registrate:', Object.keys(this.screens));
+                console.log('📋 DOM readyState:', document.readyState);
+            }
+
+            // Setup event listeners
+            setupEventListeners() {
+                // Guest login button
+                const guestBtn = document.getElementById('guest-btn');
+                if (guestBtn) {
+                    guestBtn.addEventListener('click', () => this.handleGuestLogin());
+                    console.log('🎮 Guest login button collegato');
+                } else {
+                    console.warn('⚠️ Guest button non trovato');
+                }
+
+                // Back buttons
+                document.querySelectorAll('.btn-back').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.handleBackButton(e));
+                    console.log('🔙 Back button collegato:', btn.id);
+                });
+
+                // Server cards
                 document.querySelectorAll('.server-card').forEach(card => {
                     card.addEventListener('click', (e) => this.handleServerSelect(e));
                 });
-                
+
                 // Character slots
                 document.querySelectorAll('.character-slot').forEach(slot => {
                     slot.addEventListener('click', (e) => this.handleCharacterSlot(e));
                 });
+
+                // Character creation button
+                const createBtn = document.getElementById('creation-create-btn');
+                if (createBtn) {
+                    createBtn.addEventListener('click', (e) => this.handleCharacterCreation(e));
+                    console.log('✨ Create character button collegato');
+                }
+
+                // Character name input validation
+                const nameInput = document.getElementById('char-name');
+                if (nameInput) {
+                    nameInput.addEventListener('input', () => this.validateCharacterName());
+                    console.log('📝 Name input collegato');
+                } else {
+                    console.warn('⚠️ Name input non trovato');
+                }
                 
-                // Back buttons
-                document.getElementById('server-back-btn').addEventListener('click', () => this.showScreen('login'));
-                document.getElementById('char-back-btn').addEventListener('click', () => this.showScreen('server'));
-                document.getElementById('creation-back-btn').addEventListener('click', () => this.showScreen('characters'));
-                
-                // Character creation
-                document.getElementById('creation-create-btn').addEventListener('click', (e) => this.handleCharacterCreation(e));
-                
-                // Game menu
-                document.getElementById('game-menu-btn').addEventListener('click', () => this.showScreen('characters'));
+                console.log('🎯 Event listeners configurati');
             }
 
-            startLoadingSequence() {
+            // Setup mobile-specific features
+            setupMobileFeatures() {
+                if (this.mobileDetected) {
+                    // Prevent zoom on input focus
+                    document.addEventListener('touchstart', (e) => {
+                        if (e.touches.length > 1) {
+                            e.preventDefault();
+                        }
+                    });
+
+                    // Add mobile class for CSS
+                    document.body.classList.add('mobile-device');
+                }
+
+                // Prevent context menu on long press
+                document.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                });
+
+                console.log('📱 Funzionalità mobile configurate');
+            }
+
+            // Screen Navigation
+            showScreen(screenName, options = {}) {
+                const { fade = true, callback = null } = options;
+                
+                if (!this.screens[screenName]) {
+                    console.error(`❌ Schermata non trovata: ${screenName}`);
+                    return;
+                }
+
+                const currentElement = this.screens[this.currentScreen];
+                const nextElement = this.screens[screenName];
+
+                if (fade && !this.fadeTransition) {
+                    this.fadeTransition = true;
+                    
+                    // Fade out current screen
+                    if (currentElement) {
+                        currentElement.style.opacity = '0';
+                        setTimeout(() => {
+                            currentElement.classList.remove('active');
+                            currentElement.style.display = 'none';
+                            
+                            // Fade in next screen
+                            nextElement.style.display = 'flex';
+                            nextElement.classList.add('active');
+                            setTimeout(() => {
+                                nextElement.style.opacity = '1';
+                                this.fadeTransition = false;
+                                if (callback) callback();
+                            }, 50);
+                        }, 300);
+                    }
+                } else {
+                    // Instant transition
+                    if (currentElement) {
+                        currentElement.classList.remove('active');
+                        currentElement.style.display = 'none';
+                    }
+                    
+                    nextElement.style.display = 'flex';
+                    nextElement.classList.add('active');
+                    nextElement.style.opacity = '1';
+                    
+                    if (callback) callback();
+                }
+
+                this.currentScreen = screenName;
+                console.log(`📺 Schermata cambiata: ${screenName}`);
+
+                // Screen-specific initialization
+                this.onScreenChange(screenName);
+            }
+
+            // Handle screen-specific logic
+            onScreenChange(screenName) {
+                switch (screenName) {
+                    case 'loading':
+                        this.initializeLoading();
+                        break;
+                    case 'login':
+                        this.initializeLogin();
+                        break;
+                    case 'servers':
+                        this.initializeServers();
+                        break;
+                    case 'characters':
+                        this.initializeCharacters();
+                        break;
+                    case 'creation':
+                        this.initializeCharacterCreation();
+                        break;
+                    case 'game':
+                        this.initializeGame();
+                        break;
+                }
+            }
+
+            // Screen Initializers
+            initializeLoading() {
+                console.log('⏳ Inizializzazione loading screen...');
+                
+                // Check if Storage is available
+                if (typeof Storage === 'undefined') {
+                    console.error('❌ Storage non disponibile, aspetto...');
+                    this.updateLoadingProgress(10, 'Caricamento sistema storage...');
+                    // Retry after storage loads
+                    setTimeout(() => this.initializeLoading(), 500);
+                    return;
+                }
+                
+                // Simulate loading with progress
+                this.updateLoadingProgress(25, 'Inizializzazione nuovo gioco...');
+                
+                setTimeout(() => {
+                    this.updateLoadingProgress(50, 'Caricamento dati di gioco...');
+                    
+                    setTimeout(() => {
+                        this.updateLoadingProgress(75, 'Controllo stato utente...');
+                        
+                        setTimeout(() => {
+                            this.updateLoadingProgress(100, 'Completato!');
+                            
+                            setTimeout(() => {
+                                console.log('🔄 Reset sessione per nuovo inizio...');
+                                
+                                // Pulisci sempre i dati di login al ricarico per ripartire dal menu
+                                Storage.logout();
+                                
+                                console.log('➡️ Passaggio a schermata login');
+                                this.showScreen('login');
+                            }, 500);
+                        }, 400);
+                    }, 400);
+                }, 600);
+            }
+
+            updateLoadingProgress(percentage, status) {
                 const loadingBar = document.getElementById('loading-bar');
                 const loadingStatus = document.getElementById('loading-status');
                 
-                const steps = [
-                    { progress: 20, text: 'Caricamento risorse...' },
-                    { progress: 50, text: 'Connessione al server...' },
-                    { progress: 80, text: 'Inizializzazione gioco...' },
-                    { progress: 100, text: 'Completato!' }
-                ];
-                
-                let currentStep = 0;
-                
-                const updateProgress = () => {
-                    if (currentStep < steps.length) {
-                        const step = steps[currentStep];
-                        loadingBar.style.width = step.progress + '%';
-                        loadingStatus.textContent = step.text;
-                        currentStep++;
-                        setTimeout(updateProgress, 800);
-                    } else {
-                        setTimeout(() => {
-                            this.showScreen('login');
-                        }, 500);
-                    }
-                };
-                
-                setTimeout(updateProgress, 500);
-            }
-
-            showScreen(screenId) {
-                document.querySelectorAll('.screen').forEach(screen => {
-                    screen.classList.remove('active');
-                });
-                
-                const targetScreen = document.getElementById(screenId + '-screen');
-                if (targetScreen) {
-                    targetScreen.classList.add('active');
-                    this.currentScreen = screenId;
-                    this.onScreenChange(screenId);
+                if (loadingBar) {
+                    loadingBar.style.width = percentage + '%';
                 }
-            }
-
-            onScreenChange(screenId) {
-                if (screenId === 'creation') {
-                    this.initializeCharacterCreation();
+                
+                if (loadingStatus) {
+                    loadingStatus.textContent = status;
                 }
+                
+                console.log(`📊 Loading: ${percentage}% - ${status}`);
             }
 
-            handleGuestLogin() {
-                Storage.loginAsGuest();
-                this.showMessage('Login ospite effettuato!', 'success');
+            initializeLogin() {
+                // Clear previous login data
+                const username = document.getElementById('username');
+                const password = document.getElementById('password');
+                
+                if (username) username.value = '';
+                if (password) password.value = '';
+                
+                // Focus username field
                 setTimeout(() => {
-                    this.showScreen('server');
+                    if (username) username.focus();
+                }, 300);
+            }
+
+            initializeServers() {
+                // Update server status
+                this.updateServerStatus();
+            }
+
+            initializeCharacters() {
+                // Load and display characters
+                this.loadCharacterSlots();
+            }
+
+            initializeCharacterCreation() {
+                // Reset creation form
+                this.resetCharacterCreation();
+                
+                // Initialize class selection events
+                console.log('🎯 Inizializzazione eventi selezione classe...');
+                document.querySelectorAll('.class-option').forEach(option => {
+                    // Rimuovi event listener esistenti se presenti
+                    option.removeEventListener('click', this.classSelectHandler);
+                    
+                    // Aggiungi nuovo event listener
+                    this.classSelectHandler = (e) => this.handleClassSelect(e);
+                    option.addEventListener('click', this.classSelectHandler);
+                    console.log('🎯 Event listener aggiunto per classe:', option.dataset.class);
+                });
+            }
+
+            initializeGame() {
+                // Initialize game engine
+                if (window.Game) {
+                    Game.init();
+                }
+            }
+
+            // Guest Login Handler
+            handleGuestLogin() {
+                const guestName = `Guest${Math.floor(Math.random() * 9999)}`;
+                
+                Storage.setAccount(guestName, true);
+                this.showMessage(`Benvenuto ${guestName}!`, 'success');
+                
+                setTimeout(() => {
+                    this.showScreen('servers');
                 }, 1000);
             }
 
+            // Server Selection
+            updateServerStatus() {
+                const servers = [
+                    { id: 'drakonia', name: 'Drakonia Main', status: 'online', players: Math.floor(Math.random() * 500) + 100 },
+                    { id: 'valentia', name: 'Valentia', status: 'online', players: Math.floor(Math.random() * 300) + 50 },
+                    { id: 'mystral', name: 'Mystral', status: 'maintenance', players: 0 }
+                ];
+
+                servers.forEach(server => {
+                    const card = document.querySelector(`[data-server="${server.id}"]`);
+                    if (card) {
+                        const statusEl = card.querySelector('.server-status');
+                        const playersEl = card.querySelector('.server-population');
+                        
+                        if (statusEl) {
+                            statusEl.className = `server-status ${server.status}`;
+                        }
+                        
+                        if (playersEl) {
+                            playersEl.textContent = server.status === 'online' ? `Online: ${server.players}` : 'Manutenzione';
+                        }
+                    }
+                });
+            }
+
             handleServerSelect(e) {
-                const serverCard = e.currentTarget;
+                const serverCard = e.target.closest('.server-card');
+                if (!serverCard) return;
+                
                 const serverId = serverCard.dataset.server;
                 const serverStatus = serverCard.querySelector('.server-status').classList.contains('online');
                 
@@ -1408,76 +1837,103 @@
                     return;
                 }
                 
-                // Remove previous selection
+                // Select server
                 document.querySelectorAll('.server-card').forEach(card => {
                     card.classList.remove('selected');
                 });
-                
-                // Select new server
                 serverCard.classList.add('selected');
-                this.selectedServer = serverId;
                 
-                // Update server name display
-                const serverName = serverCard.querySelector('h3').textContent;
-                document.getElementById('selected-server').textContent = serverName;
-                
-                // Auto-proceed to characters after selection (like main version)
+                // Save server selection and proceed
                 setTimeout(() => {
-                    this.showMessage('Connesso al server!', 'success');
-                    setTimeout(() => {
-                        this.showScreen('characters');
-                    }, 1000);
+                    Storage.data.account.selectedServer = serverId;
+                    Storage.saveData();
+                    this.showScreen('characters');
                 }, 500);
             }
 
-
+            // Character Management
+            loadCharacterSlots() {
+                for (let i = 1; i <= 4; i++) {
+                    const character = Storage.getCharacter(i);
+                    const slotEl = document.querySelector(`[data-slot="${i}"]`);
+                    
+                    if (slotEl) {
+                        if (character) {
+                            // Show character info
+                            slotEl.innerHTML = `
+                                <div class="character-info">
+                                    <div class="character-details">
+                                        <h3>${character.name}</h3>
+                                        <p class="character-class">${this.getClassName(character.class)}</p>
+                                        <p class="character-level">Livello ${character.level}</p>
+                                    </div>
+                                    <div class="character-actions">
+                                        <button class="play-btn" onclick="UI.playCharacter(${i})">Gioca</button>
+                                        <button class="delete-btn" onclick="UI.deleteCharacterSlot(${i})">✕</button>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            // Show empty slot
+                            slotEl.innerHTML = `
+                                <div class="slot-empty">
+                                    <div class="create-character-icon">+</div>
+                                    <p>Crea Personaggio</p>
+                                </div>
+                            `;
+                        }
+                    }
+                }
+            }
 
             handleCharacterSlot(e) {
                 const slot = e.target.closest('.character-slot');
                 if (!slot) return;
                 
                 const slotNumber = parseInt(slot.dataset.slot);
-                const character = Storage.findCharacterInSlot(slotNumber);
+                const character = Storage.getCharacter(slotNumber);
                 
                 if (character) {
                     // Play with existing character
-                    this.playCharacter(slotNumber, character);
+                    this.playCharacter(slotNumber);
                 } else {
                     // Create new character
-                    this.selectedCharacterSlot = slotNumber;
+                    this.currentCreationSlot = slotNumber;
                     this.showScreen('creation');
                 }
             }
 
-            playCharacter(slot, character) {
+            playCharacter(slot) {
+                const character = Storage.getCharacter(slot);
+                if (!character) {
+                    this.showMessage('Personaggio non trovato', 'error');
+                    return;
+                }
+                
                 this.showMessage(`Caricamento di ${character.name}...`, 'info');
                 
                 setTimeout(() => {
+                    // Load character into game
+                    if (window.Game) {
+                        Game.loadCharacter(character);
+                    }
                     this.showScreen('game');
                 }, 1000);
             }
 
-            initializeCharacterCreation() {
-                this.resetCharacterCreation();
+            deleteCharacterSlot(slot) {
+                const character = Storage.getCharacter(slot);
+                if (!character) return;
                 
-                // Initialize class selection events
-                document.querySelectorAll('.class-option').forEach(option => {
-                    const newHandler = (e) => this.handleClassSelect(e);
-                    option.removeEventListener('click', option._classHandler);
-                    option._classHandler = newHandler;
-                    option.addEventListener('click', newHandler);
-                });
-                
-                // Name input validation
-                const nameInput = document.getElementById('char-name');
-                if (nameInput) {
-                    const newHandler = () => this.validateCharacterName();
-                    nameInput.removeEventListener('input', nameInput._nameHandler);
-                    nameInput._nameHandler = newHandler;
-                    nameInput.addEventListener('input', newHandler);
+                const confirmDelete = confirm(`Sei sicuro di voler eliminare ${character.name}? Questa azione non può essere annullata!`);
+                if (confirmDelete) {
+                    Storage.deleteCharacter(slot);
+                    this.loadCharacterSlots(); // Refresh display
+                    this.showMessage('Personaggio eliminato', 'success');
                 }
             }
 
+            // Character Creation
             resetCharacterCreation() {
                 const nameInput = document.getElementById('char-name');
                 if (nameInput) {
@@ -1492,8 +1948,14 @@
             }
 
             handleClassSelect(e) {
+                console.log('🎯 handleClassSelect chiamato!', e.target);
                 const classOption = e.target.closest('.class-option');
-                if (!classOption) return;
+                if (!classOption) {
+                    console.log('❌ Nessuna class-option trovata');
+                    return;
+                }
+                
+                console.log('✅ class-option trovata:', classOption.dataset.class);
                 
                 // Clear previous selection
                 document.querySelectorAll('.class-option').forEach(option => {
@@ -1505,6 +1967,7 @@
                 this.selectedClass = classOption.dataset.class;
                 
                 this.updateCreateButton();
+                console.log('🎉 Classe selezionata:', this.selectedClass);
             }
 
             validateCharacterName() {
@@ -1543,21 +2006,25 @@
                 
                 if (createBtn) {
                     createBtn.disabled = !hasValidName || !this.selectedClass;
+                    console.log('🔘 Pulsante create:', createBtn.disabled ? 'disabilitato' : 'abilitato');
                 }
             }
 
             handleCharacterCreation(e) {
                 e.preventDefault();
+                console.log('🎨 Inizio creazione personaggio');
                 
                 const nameInput = document.getElementById('char-name');
                 if (!nameInput) {
+                    console.error('❌ Input nome non trovato!');
                     this.showMessage('Errore nel form di creazione', 'error');
                     return;
                 }
                 
                 const characterName = nameInput.value.trim();
+                console.log('📋 Nome:', characterName, 'Classe selezionata:', this.selectedClass);
                 
-                // Validations
+                // Validazioni
                 if (!characterName) {
                     this.showMessage('Inserisci un nome per il personaggio', 'error');
                     return;
@@ -1578,25 +2045,29 @@
                     return;
                 }
                 
-                // Find first empty slot
+                console.log('✅ Validazione OK, creo personaggio...');
+                
+                // Trova il primo slot libero
                 const slot = Storage.findFirstEmptySlot();
                 if (!slot) {
                     this.showMessage('Tutti gli slot personaggio sono occupati', 'error');
                     return;
                 }
                 
-                // Create character
+                // Crea il personaggio
                 const characterData = {
                     name: characterName,
                     class: this.selectedClass
                 };
                 
+                // Salva il personaggio
                 const success = Storage.createCharacter(slot, characterData);
                 
                 if (success) {
-                    Storage.selectCharacter(characterName);
+                    console.log('🎉 Personaggio creato con successo!');
                     this.showMessage(`${characterName} creato con successo!`, 'success');
                     
+                    // Torna alla schermata personaggi per vedere il nuovo personaggio
                     setTimeout(() => {
                         this.showScreen('characters');
                     }, 1500);
@@ -1605,26 +2076,98 @@
                 }
             }
 
-            showMessage(text, type = 'info') {
+            // Back button handler
+            handleBackButton(e) {
+                console.log(`🔙 Back button premuto dalla schermata: ${this.currentScreen}`);
+                
+                switch (this.currentScreen) {
+                    case 'servers':
+                        console.log('📱 Tornando al login...');
+                        this.showScreen('login');
+                        break;
+                    case 'characters':
+                        console.log('🖥️ Tornando alla selezione server...');
+                        this.showScreen('servers');
+                        break;
+                    case 'creation':
+                        console.log('👥 Tornando alla selezione personaggi...');
+                        this.showScreen('characters');
+                        break;
+                    case 'game':
+                        console.log('🎮 Tornando alla selezione personaggi...');
+                        this.showScreen('characters');
+                        break;
+                    default:
+                        console.log('⚠️ Nessuna azione back definita per:', this.currentScreen);
+                }
+            }
+
+            // Utility Methods
+            getClassName(classKey) {
+                const classes = {
+                    swordsman: 'Spadaccino',
+                    archer: 'Arciere',
+                    mage: 'Mago'
+                };
+                return classes[classKey] || classKey;
+            }
+
+            showMessage(message, type = 'info', duration = 3000) {
                 // Remove existing messages
-                document.querySelectorAll('.message').forEach(msg => msg.remove());
+                const existingMessage = document.querySelector('.ui-message');
+                if (existingMessage) {
+                    existingMessage.remove();
+                }
                 
+                // Create message element
                 const messageEl = document.createElement('div');
-                messageEl.className = `message ${type}`;
-                messageEl.textContent = text;
+                messageEl.className = `ui-message ${type}`;
+                messageEl.textContent = message;
                 
+                // Add to page
                 document.body.appendChild(messageEl);
                 
+                // Auto remove
                 setTimeout(() => {
-                    messageEl.remove();
-                }, 3000);
+                    if (messageEl.parentNode) {
+                        messageEl.remove();
+                    }
+                }, duration);
+                
+                console.log(`💬 ${type.toUpperCase()}: ${message}`);
+            }
+
+            // Get current screen
+            getCurrentScreen() {
+                return this.currentScreen;
             }
         }
 
-        // Initialize UI when page loads
-        document.addEventListener('DOMContentLoaded', () => {
+        // Initialize UI when DOM is ready - IDENTICAL TO MAIN
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                window.UI = new UIManager();
+                console.log('🎮 Sistema UI inizializzato (DOM ready)!');
+                
+                // Start loading sequence
+                setTimeout(() => {
+                    if (UI.currentScreen === 'loading') {
+                        UI.initializeLoading();
+                    }
+                }, 100);
+            });
+        } else {
+            // DOM already loaded
             window.UI = new UIManager();
-        });
+            console.log('🎮 Sistema UI inizializzato (DOM already loaded)!');
+            
+            // Start loading sequence
+            setTimeout(() => {
+                if (UI.currentScreen === 'loading') {
+                    UI.initializeLoading();
+                }
+            }, 100);
+        }
     </script>
 </body>
 </html>
