@@ -3,19 +3,854 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DRAKORIA - NosTale Mobile</title>
-    <link rel="stylesheet" href="github-deploy/css/style.css">
-    <link rel="manifest" href="github-deploy/manifest.json">
+    <title>🐉 DRAKORIA - NosTale Mobile MMORPG</title>
     <meta name="theme-color" content="#1a1a2e">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="DRAKORIA - Mobile MMORPG ispirato a NosTale. Gioca gratis nel browser!">
     
-    <!-- Game Scripts -->
-    <script src="github-deploy/js/gameData.js"></script>
-    <script src="github-deploy/js/storage.js"></script>
-    <script src="github-deploy/js/ui.js"></script>
-    <script src="github-deploy/js/game.js"></script>
+    <style>
+        /* DRAKORIA - Embedded CSS */
+        :root {
+            --primary-color: #4f46e5;
+            --primary-dark: #3730a3;
+            --secondary-color: #f59e0b;
+            --accent-color: #10b981;
+            --danger-color: #ef4444;
+            --bg-primary: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            --bg-secondary: rgba(30, 27, 75, 0.95);
+            --bg-card: rgba(255, 255, 255, 0.1);
+            --bg-input: rgba(255, 255, 255, 0.05);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.8);
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --hp-color: #ef4444;
+            --mp-color: #3b82f6;
+            --exp-color: #f59e0b;
+            --online-color: #10b981;
+            --maintenance-color: #6b7280;
+            --border-color: rgba(255, 255, 255, 0.2);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: var(--bg-primary);
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* Game Logo */
+        .game-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .game-logo h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--secondary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(245, 158, 11, 0.5);
+            margin-bottom: 0.5rem;
+        }
+
+        .game-logo p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-width: 120px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-guest {
+            background: linear-gradient(45deg, var(--accent-color), #059669);
+            color: white;
+        }
+
+        .btn-back {
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, var(--danger-color), #dc2626);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Loading Screen */
+        .loading-content {
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .loading-bar-container {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-card);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+
+        .loading-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary-color), var(--accent-color));
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        /* Login Form */
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-form {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+        }
+
+        .form-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .guest-access {
+            text-align: center;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Server Selection */
+        .server-container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .server-container h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+        }
+
+        .servers-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .server-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .server-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 20px rgba(79, 70, 229, 0.2);
+        }
+
+        .server-card.selected {
+            border-color: var(--accent-color);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .server-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .server-status.online {
+            background: var(--online-color);
+            box-shadow: 0 0 10px var(--online-color);
+        }
+
+        .server-status.maintenance {
+            background: var(--maintenance-color);
+        }
+
+        .server-info {
+            flex: 1;
+        }
+
+        .server-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .server-info p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .server-population {
+            font-size: 0.8rem;
+            color: var(--accent-color);
+        }
+
+        .server-ping {
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+        .server-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        /* Character Selection */
+        .character-container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .character-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .character-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .server-info-mini {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .character-slots {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .character-slot {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .character-slot:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 20px rgba(79, 70, 229, 0.2);
+        }
+
+        .character-slot.selected {
+            border-color: var(--accent-color);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .slot-empty {
+            color: var(--text-muted);
+        }
+
+        .create-character-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent-color);
+        }
+
+        .character-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        /* Character Creation */
+        .creation-container {
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .creation-container h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+        }
+
+        .creation-form {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .class-selection {
+            margin-top: 2rem;
+        }
+
+        .class-selection h3 {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .class-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .class-option {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .class-option:hover {
+            border-color: var(--primary-color);
+        }
+
+        .class-option.selected {
+            border-color: var(--accent-color);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .class-preview {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .class-icon {
+            font-size: 2rem;
+        }
+
+        .class-preview h4 {
+            font-size: 1.2rem;
+        }
+
+        .class-stats {
+            margin-bottom: 0.5rem;
+        }
+
+        .stat {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .class-option p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .creation-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        /* Game Screen */
+        .game-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background: #1a1a2e;
+        }
+
+        .game-canvas {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #2d1b69, #11998e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .game-hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .game-hud > * {
+            pointer-events: auto;
+        }
+
+        .hud-top {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            right: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            z-index: 100;
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--bg-secondary);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .player-avatar {
+            position: relative;
+        }
+
+        .level-badge {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            background: var(--secondary-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .player-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .stat-bar {
+            width: 120px;
+            height: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .hp-bar .bar-fill {
+            background: var(--hp-color);
+            width: 100%;
+        }
+
+        .mp-bar .bar-fill {
+            background: var(--mp-color);
+            width: 100%;
+        }
+
+        .exp-bar .bar-fill {
+            background: var(--exp-color);
+            width: 0%;
+        }
+
+        .bar-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+        }
+
+        .game-menu {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .hud-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-secondary);
+            border: none;
+            border-radius: 0.5rem;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .hud-btn:active {
+            transform: scale(0.95);
+        }
+
+        .game-back-btn {
+            padding: 0.5rem 1rem;
+            width: auto;
+            font-size: 0.9rem;
+        }
+
+        .hud-bottom {
+            position: absolute;
+            bottom: 2rem;
+            left: 1rem;
+            right: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        /* Joystick */
+        .joystick-container {
+            width: 100px;
+            height: 100px;
+            position: relative;
+        }
+
+        .joystick {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        .joystick-knob {
+            width: 30px;
+            height: 30px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Skills */
+        .skills-container {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .skill-btn {
+            width: 50px;
+            height: 50px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem;
+            position: relative;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .skill-icon {
+            font-size: 1.5rem;
+        }
+
+        .skill-cooldown {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 0.375rem;
+            display: none;
+        }
+
+        /* Chat */
+        .chat-panel {
+            position: absolute;
+            bottom: 8rem;
+            left: 1rem;
+            width: 300px;
+            max-height: 200px;
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            z-index: 50;
+        }
+
+        .chat-panel.collapsed {
+            max-height: 40px;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-toggle {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .chat-content {
+            height: 160px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 0.5rem;
+            overflow-y: auto;
+            font-size: 0.8rem;
+        }
+
+        .chat-input-container {
+            display: flex;
+            padding: 0.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .chat-input-container input {
+            flex: 1;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            color: white;
+            font-size: 0.8rem;
+        }
+
+        .chat-send {
+            background: var(--primary-color);
+            border: none;
+            color: white;
+            padding: 0.5rem;
+            margin-left: 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .game-logo h1 {
+                font-size: 2rem;
+            }
+            
+            .character-slots {
+                grid-template-columns: 1fr;
+            }
+            
+            .class-options {
+                gap: 0.5rem;
+            }
+            
+            .creation-container {
+                padding: 0.5rem;
+            }
+            
+            .chat-panel {
+                width: calc(100vw - 2rem);
+                right: 1rem;
+            }
+            
+            .player-stats {
+                display: none;
+            }
+        }
+
+        /* Loading Animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .loading-bar {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        /* Screen Transitions */
+        .screen {
+            transition: opacity 0.3s ease;
+        }
+
+        .screen:not(.active) {
+            opacity: 0;
+        }
+
+        /* Touch Feedback */
+        .btn:active,
+        .server-card:active,
+        .character-slot:active,
+        .class-option:active {
+            transform: scale(0.98);
+        }
+
+        /* Messages */
+        .message {
+            position: fixed;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-secondary);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .message.success {
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .message.error {
+            border-left: 4px solid var(--danger-color);
+        }
+    </style>
 </head>
 <body>
     <!-- Loading Screen -->
@@ -29,9 +864,6 @@
                 <div id="loading-bar" class="loading-bar"></div>
             </div>
             <p id="loading-status">Caricamento...</p>
-            <button id="skip-loading" class="btn secondary" onclick="if(window.UI) UI.showScreen('login')" style="margin-top: 20px;">
-                Skip Loading (Dev)
-            </button>
         </div>
     </div>
 
@@ -228,7 +1060,7 @@
     <div id="game-screen" class="screen">
         <div id="game-container" class="game-container">
             <!-- Main Game Canvas -->
-            <canvas id="game-canvas" class="game-canvas"></canvas>
+            <canvas id="game-canvas" class="game-canvas">🎮 Gioco in Caricamento...</canvas>
             
             <!-- Game HUD -->
             <div class="game-hud">
@@ -312,5 +1144,452 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // DRAKORIA - Embedded JavaScript
+        
+        // Game Data
+        const GameData = {
+            classes: {
+                swordsman: {
+                    name: 'Spadaccino',
+                    icon: '⚔️',
+                    description: 'Maestro del combattimento corpo a corpo con alta difesa e attacco fisico',
+                    stats: { str: 15, agi: 8, int: 5, vit: 12 }
+                },
+                archer: {
+                    name: 'Arciere', 
+                    icon: '🏹',
+                    description: 'Esperto di attacchi a distanza con alta velocità e precisione',
+                    stats: { str: 8, agi: 15, int: 7, vit: 10 }
+                },
+                mage: {
+                    name: 'Mago',
+                    icon: '🔮', 
+                    description: 'Padrone degli elementi magici con devastanti incantesimi',
+                    stats: { str: 5, agi: 10, int: 15, vit: 8 }
+                }
+            }
+        };
+
+        // Storage System
+        class Storage {
+            static init() {
+                if (!localStorage.getItem('drakoria_data')) {
+                    const defaultData = {
+                        accounts: {},
+                        currentAccount: null,
+                        characters: {
+                            slot1: null, slot2: null, slot3: null, slot4: null
+                        },
+                        selectedCharacter: null,
+                        gameSettings: {
+                            soundEnabled: true,
+                            musicEnabled: true,
+                            graphicsQuality: 'medium'
+                        }
+                    };
+                    localStorage.setItem('drakoria_data', JSON.stringify(defaultData));
+                }
+                return true;
+            }
+
+            static getData() {
+                return JSON.parse(localStorage.getItem('drakoria_data'));
+            }
+
+            static saveData() {
+                const data = this.getData();
+                localStorage.setItem('drakoria_data', JSON.stringify(data));
+            }
+
+            static loginAsGuest() {
+                const data = this.getData();
+                const guestAccount = {
+                    username: 'Guest_' + Date.now(),
+                    type: 'guest',
+                    createdAt: Date.now(),
+                    lastLogin: Date.now()
+                };
+                data.currentAccount = guestAccount;
+                localStorage.setItem('drakoria_data', JSON.stringify(data));
+                return true;
+            }
+
+            static createCharacter(slot, characterData) {
+                if (slot < 1 || slot > 4) return false;
+                
+                const character = {
+                    name: characterData.name,
+                    class: characterData.class,
+                    level: 1,
+                    experience: 0,
+                    stats: GameData.classes[characterData.class].stats,
+                    position: { x: 400, y: 300 },
+                    inventory: [],
+                    equipment: {},
+                    gold: 100,
+                    createdAt: Date.now(),
+                    lastPlayed: Date.now(),
+                    playTime: 0
+                };
+
+                character.currentHp = 100;
+                character.currentMp = 50;
+
+                const data = this.getData();
+                data.characters[`slot${slot}`] = character;
+                localStorage.setItem('drakoria_data', JSON.stringify(data));
+                return true;
+            }
+
+            static findFirstEmptySlot() {
+                const data = this.getData();
+                for (let i = 1; i <= 4; i++) {
+                    if (!data.characters[`slot${i}`]) {
+                        return i;
+                    }
+                }
+                return null;
+            }
+
+            static isCharacterNameAvailable(name) {
+                if (!name || name.length < 3 || name.length > 12) return false;
+                if (!/^[a-zA-Z0-9_]+$/.test(name)) return false;
+                
+                const data = this.getData();
+                for (let i = 1; i <= 4; i++) {
+                    const character = data.characters[`slot${i}`];
+                    if (character && character.name.toLowerCase() === name.toLowerCase()) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            static selectCharacter(name) {
+                const data = this.getData();
+                data.selectedCharacter = name;
+                localStorage.setItem('drakoria_data', JSON.stringify(data));
+            }
+        }
+
+        // UI Manager
+        class UIManager {
+            constructor() {
+                this.currentScreen = 'loading';
+                this.selectedServer = null;
+                this.selectedClass = null;
+                this.selectedCharacterSlot = null;
+                
+                // Initialize storage
+                Storage.init();
+                
+                this.initializeEvents();
+                this.startLoadingSequence();
+            }
+
+            initializeEvents() {
+                // Guest login
+                document.getElementById('guest-btn').addEventListener('click', () => this.handleGuestLogin());
+                
+                // Server selection
+                document.querySelectorAll('.server-card').forEach(card => {
+                    card.addEventListener('click', (e) => this.handleServerSelect(e));
+                });
+                document.getElementById('server-select-btn').addEventListener('click', () => this.handleServerConfirm());
+                
+                // Character slots
+                document.querySelectorAll('.character-slot').forEach(slot => {
+                    slot.addEventListener('click', (e) => this.handleCharacterSlot(e));
+                });
+                
+                // Back buttons
+                document.getElementById('server-back-btn').addEventListener('click', () => this.showScreen('login'));
+                document.getElementById('char-back-btn').addEventListener('click', () => this.showScreen('server'));
+                document.getElementById('creation-back-btn').addEventListener('click', () => this.showScreen('characters'));
+                
+                // Character creation
+                document.getElementById('creation-create-btn').addEventListener('click', (e) => this.handleCharacterCreation(e));
+                
+                // Game menu
+                document.getElementById('game-menu-btn').addEventListener('click', () => this.showScreen('characters'));
+            }
+
+            startLoadingSequence() {
+                const loadingBar = document.getElementById('loading-bar');
+                const loadingStatus = document.getElementById('loading-status');
+                
+                const steps = [
+                    { progress: 20, text: 'Caricamento risorse...' },
+                    { progress: 50, text: 'Connessione al server...' },
+                    { progress: 80, text: 'Inizializzazione gioco...' },
+                    { progress: 100, text: 'Completato!' }
+                ];
+                
+                let currentStep = 0;
+                
+                const updateProgress = () => {
+                    if (currentStep < steps.length) {
+                        const step = steps[currentStep];
+                        loadingBar.style.width = step.progress + '%';
+                        loadingStatus.textContent = step.text;
+                        currentStep++;
+                        setTimeout(updateProgress, 800);
+                    } else {
+                        setTimeout(() => {
+                            this.showScreen('login');
+                        }, 500);
+                    }
+                };
+                
+                setTimeout(updateProgress, 500);
+            }
+
+            showScreen(screenId) {
+                document.querySelectorAll('.screen').forEach(screen => {
+                    screen.classList.remove('active');
+                });
+                
+                const targetScreen = document.getElementById(screenId + '-screen');
+                if (targetScreen) {
+                    targetScreen.classList.add('active');
+                    this.currentScreen = screenId;
+                    this.onScreenChange(screenId);
+                }
+            }
+
+            onScreenChange(screenId) {
+                if (screenId === 'creation') {
+                    this.initializeCharacterCreation();
+                }
+            }
+
+            handleGuestLogin() {
+                Storage.loginAsGuest();
+                this.showMessage('Login ospite effettuato!', 'success');
+                setTimeout(() => {
+                    this.showScreen('server');
+                }, 1000);
+            }
+
+            handleServerSelect(e) {
+                const serverCard = e.currentTarget;
+                const serverId = serverCard.dataset.server;
+                
+                // Remove previous selection
+                document.querySelectorAll('.server-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                
+                // Select new server
+                serverCard.classList.add('selected');
+                this.selectedServer = serverId;
+                
+                // Enable confirm button
+                document.getElementById('server-select-btn').disabled = false;
+                
+                // Update server name display
+                const serverName = serverCard.querySelector('h3').textContent;
+                document.getElementById('selected-server').textContent = serverName;
+            }
+
+            handleServerConfirm() {
+                if (this.selectedServer) {
+                    this.showMessage('Connesso al server!', 'success');
+                    setTimeout(() => {
+                        this.showScreen('characters');
+                    }, 1000);
+                }
+            }
+
+            handleCharacterSlot(e) {
+                const slot = e.currentTarget;
+                const slotNumber = slot.dataset.slot;
+                
+                // Check if slot is empty (creation) or has character (selection)
+                if (slot.querySelector('.slot-empty')) {
+                    // Empty slot - go to creation
+                    this.selectedCharacterSlot = slotNumber;
+                    this.showScreen('creation');
+                } else {
+                    // Has character - select for play
+                    document.querySelectorAll('.character-slot').forEach(s => s.classList.remove('selected'));
+                    slot.classList.add('selected');
+                    
+                    document.getElementById('char-play-btn').disabled = false;
+                    document.getElementById('char-delete-btn').disabled = false;
+                }
+            }
+
+            initializeCharacterCreation() {
+                this.resetCharacterCreation();
+                
+                // Initialize class selection events
+                document.querySelectorAll('.class-option').forEach(option => {
+                    const newHandler = (e) => this.handleClassSelect(e);
+                    option.removeEventListener('click', option._classHandler);
+                    option._classHandler = newHandler;
+                    option.addEventListener('click', newHandler);
+                });
+                
+                // Name input validation
+                const nameInput = document.getElementById('char-name');
+                if (nameInput) {
+                    const newHandler = () => this.validateCharacterName();
+                    nameInput.removeEventListener('input', nameInput._nameHandler);
+                    nameInput._nameHandler = newHandler;
+                    nameInput.addEventListener('input', newHandler);
+                }
+            }
+
+            resetCharacterCreation() {
+                const nameInput = document.getElementById('char-name');
+                if (nameInput) {
+                    nameInput.value = '';
+                }
+                document.querySelectorAll('.class-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                
+                this.selectedClass = null;
+                this.updateCreateButton();
+            }
+
+            handleClassSelect(e) {
+                const classOption = e.target.closest('.class-option');
+                if (!classOption) return;
+                
+                // Clear previous selection
+                document.querySelectorAll('.class-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                
+                // Select new class
+                classOption.classList.add('selected');
+                this.selectedClass = classOption.dataset.class;
+                
+                this.updateCreateButton();
+            }
+
+            validateCharacterName() {
+                const nameInput = document.getElementById('char-name');
+                const name = nameInput.value.trim();
+                
+                if (name.length === 0) {
+                    this.clearNameValidation();
+                    return;
+                }
+                
+                const isValid = Storage.isCharacterNameAvailable(name);
+                
+                if (isValid) {
+                    nameInput.classList.remove('invalid');
+                    nameInput.classList.add('valid');
+                } else {
+                    nameInput.classList.remove('valid');
+                    nameInput.classList.add('invalid');
+                }
+                
+                this.updateCreateButton();
+                return isValid;
+            }
+
+            clearNameValidation() {
+                const nameInput = document.getElementById('char-name');
+                nameInput.classList.remove('valid', 'invalid');
+            }
+
+            updateCreateButton() {
+                const createBtn = document.getElementById('creation-create-btn');
+                const nameInput = document.getElementById('char-name');
+                const name = nameInput ? nameInput.value.trim() : '';
+                const hasValidName = name.length >= 3 && Storage.isCharacterNameAvailable(name);
+                
+                if (createBtn) {
+                    createBtn.disabled = !hasValidName || !this.selectedClass;
+                }
+            }
+
+            handleCharacterCreation(e) {
+                e.preventDefault();
+                
+                const nameInput = document.getElementById('char-name');
+                if (!nameInput) {
+                    this.showMessage('Errore nel form di creazione', 'error');
+                    return;
+                }
+                
+                const characterName = nameInput.value.trim();
+                
+                // Validations
+                if (!characterName) {
+                    this.showMessage('Inserisci un nome per il personaggio', 'error');
+                    return;
+                }
+                
+                if (characterName.length < 3) {
+                    this.showMessage('Il nome deve essere lungo almeno 3 caratteri', 'error');
+                    return;
+                }
+                
+                if (!this.selectedClass) {
+                    this.showMessage('Seleziona una classe', 'error');
+                    return;
+                }
+                
+                if (!Storage.isCharacterNameAvailable(characterName)) {
+                    this.showMessage('Nome già in uso', 'error');
+                    return;
+                }
+                
+                // Find first empty slot
+                const slot = Storage.findFirstEmptySlot();
+                if (!slot) {
+                    this.showMessage('Tutti gli slot personaggio sono occupati', 'error');
+                    return;
+                }
+                
+                // Create character
+                const characterData = {
+                    name: characterName,
+                    class: this.selectedClass
+                };
+                
+                const success = Storage.createCharacter(slot, characterData);
+                
+                if (success) {
+                    Storage.selectCharacter(characterName);
+                    this.showMessage(`${characterName} creato con successo!`, 'success');
+                    
+                    setTimeout(() => {
+                        this.showScreen('characters');
+                    }, 1500);
+                } else {
+                    this.showMessage('Errore nella creazione del personaggio', 'error');
+                }
+            }
+
+            showMessage(text, type = 'info') {
+                // Remove existing messages
+                document.querySelectorAll('.message').forEach(msg => msg.remove());
+                
+                const messageEl = document.createElement('div');
+                messageEl.className = `message ${type}`;
+                messageEl.textContent = text;
+                
+                document.body.appendChild(messageEl);
+                
+                setTimeout(() => {
+                    messageEl.remove();
+                }, 3000);
+            }
+        }
+
+        // Initialize UI when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.UI = new UIManager();
+        });
+    </script>
 </body>
 </html>
