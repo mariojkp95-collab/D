@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DRAKORIA - NosTale Mobile</title>
+    <link rel="stylesheet" href="css/style.css?v=1728516000">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Prevent caching for development -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <!-- Game Scripts -->
+    <script src="js/gameData.js?v=1728516000"></script>
+    <script src="js/storage.js?v=1728516000"></script>
+    <script src="js/ui.js?v=1728516000"></script>
+    <script src="js/game.js?v=1728516000"></script>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="screen active">
+        <div class="loading-content">
+            <div class="game-logo">
+                <h1>🐉 DRAKORIA</h1>
+                <p>NosTale Mobile Edition</p>
+            </div>
+            <div class="loading-bar-container">
+                <div id="loading-bar" class="loading-bar"></div>
+            </div>
+            <p id="loading-status">Caricamento...</p>
+            <button id="skip-loading" class="btn secondary" onclick="if(window.UI) UI.showScreen('login')" style="margin-top: 20px;">
+                Skip Loading (Dev)
+            </button>
+        </div>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen">
+        <div class="login-container">
+            <div class="game-logo">
+                <h1>🐉 DRAKORIA</h1>
+                <p>Entra nel mondo di Drakoria</p>
+            </div>
+            
+            <div class="login-form">
+                <div class="form-group">
+                    <label for="username">Nome Utente</label>
+                    <input type="text" id="username" placeholder="Inserisci il tuo nome utente" maxlength="12">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Inserisci la password" maxlength="20">
+                </div>
+                
+                <div class="form-actions">
+                    <button id="login-btn" class="btn btn-primary">ACCEDI</button>
+                    <button id="register-btn" class="btn btn-secondary">REGISTRATI</button>
+                </div>
+                
+                <div class="guest-access">
+                    <button id="guest-btn" class="btn btn-guest">Gioca come Ospite</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Server Selection Screen -->
+    <div id="server-screen" class="screen">
+        <div class="server-container">
+            <h2>📡 Seleziona Server</h2>
+            
+            <div class="servers-list">
+                <div class="server-card" data-server="drakonia">
+                    <div class="server-status online"></div>
+                    <div class="server-info">
+                        <h3>🏰 Drakonia</h3>
+                        <p>Server Principale</p>
+                        <span class="server-population">Online: 1,245</span>
+                    </div>
+                    <div class="server-ping">25ms</div>
+                </div>
+                
+                <div class="server-card" data-server="valentia">
+                    <div class="server-status online"></div>
+                    <div class="server-info">
+                        <h3>⚔️ Valentia</h3>
+                        <p>Server PvP</p>
+                        <span class="server-population">Online: 892</span>
+                    </div>
+                    <div class="server-ping">41ms</div>
+                </div>
+                
+                <div class="server-card" data-server="mystral">
+                    <div class="server-status maintenance"></div>
+                    <div class="server-info">
+                        <h3>🔮 Mystral</h3>
+                        <p>Server Magico</p>
+                        <span class="server-population">Manutenzione</span>
+                    </div>
+                    <div class="server-ping">--</div>
+                </div>
+            </div>
+            
+            <div class="server-actions">
+                <button id="server-back-btn" class="btn btn-back">← Indietro</button>
+                <button id="server-select-btn" class="btn btn-primary" disabled>Entra nel Server</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Character Selection Screen -->
+    <div id="character-screen" class="screen">
+        <div class="character-container">
+            <div class="character-header">
+                <h2>👤 Personaggi</h2>
+                <div class="server-info-mini">Server: <span id="selected-server">Drakonia</span></div>
+            </div>
+            
+            <div class="character-slots">
+                <!-- Slot 1 -->
+                <div class="character-slot" data-slot="1">
+                    <div class="slot-empty">
+                        <div class="create-character-icon">+</div>
+                        <p>Crea Personaggio</p>
+                    </div>
+                </div>
+                
+                <!-- Slot 2 -->
+                <div class="character-slot" data-slot="2">
+                    <div class="slot-empty">
+                        <div class="create-character-icon">+</div>
+                        <p>Crea Personaggio</p>
+                    </div>
+                </div>
+                
+                <!-- Slot 3 -->
+                <div class="character-slot" data-slot="3">
+                    <div class="slot-empty">
+                        <div class="create-character-icon">+</div>
+                        <p>Crea Personaggio</p>
+                    </div>
+                </div>
+                
+                <!-- Slot 4 -->
+                <div class="character-slot" data-slot="4">
+                    <div class="slot-empty">
+                        <div class="create-character-icon">+</div>
+                        <p>Crea Personaggio</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="character-actions">
+                <button id="char-back-btn" class="btn btn-back">← Server</button>
+                <button id="char-delete-btn" class="btn btn-danger" disabled>🗑️ Elimina</button>
+                <button id="char-play-btn" class="btn btn-primary" disabled>▶️ Gioca</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Character Creation Screen -->
+    <div id="creation-screen" class="screen">
+        <div class="creation-container">
+            <h2>✨ Crea Personaggio</h2>
+            
+            <div class="creation-form">
+                <div class="form-group">
+                    <label for="char-name">Nome Personaggio</label>
+                    <input type="text" id="char-name" placeholder="Inserisci nome (3-12 caratteri)" maxlength="12">
+                    <div class="name-availability" id="name-availability"></div>
+                </div>
+                
+                <div class="class-selection">
+                    <h3>Scegli la Classe</h3>
+                    <div class="class-options">
+                        <div class="class-option" data-class="swordsman">
+                            <div class="class-preview">
+                                <div class="class-icon">⚔️</div>
+                                <h4>Spadaccino</h4>
+                            </div>
+                            <div class="class-stats">
+                                <div class="stat">ATK: ⭐⭐⭐⭐⭐</div>
+                                <div class="stat">DEF: ⭐⭐⭐⭐</div>
+                                <div class="stat">SPD: ⭐⭐⭐</div>
+                            </div>
+                            <p>Specialista nel combattimento ravvicinato con alta resistenza</p>
+                        </div>
+                        
+                        <div class="class-option" data-class="archer">
+                            <div class="class-preview">
+                                <div class="class-icon">🏹</div>
+                                <h4>Arciere</h4>
+                            </div>
+                            <div class="class-stats">
+                                <div class="stat">ATK: ⭐⭐⭐⭐</div>
+                                <div class="stat">DEF: ⭐⭐</div>
+                                <div class="stat">SPD: ⭐⭐⭐⭐⭐</div>
+                            </div>
+                            <p>Attacchi precisi a distanza con alta velocità</p>
+                        </div>
+                        
+                        <div class="class-option" data-class="mage">
+                            <div class="class-preview">
+                                <div class="class-icon">🔮</div>
+                                <h4>Mago</h4>
+                            </div>
+                            <div class="class-stats">
+                                <div class="stat">ATK: ⭐⭐⭐⭐⭐</div>
+                                <div class="stat">DEF: ⭐⭐</div>
+                                <div class="stat">SPD: ⭐⭐⭐</div>
+                            </div>
+                            <p>Padrone degli elementi con potenti incantesimi</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="creation-actions">
+                <button id="creation-back-btn" class="btn btn-back">← Indietro</button>
+                <button id="creation-create-btn" class="btn btn-primary" disabled>Crea Personaggio</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+        <div id="game-container" class="game-container">
+            <!-- Main Game Canvas -->
+            <canvas id="game-canvas" class="game-canvas"></canvas>
+            
+            <!-- Game HUD -->
+            <div class="game-hud">
+                <!-- Top HUD -->
+                <div class="hud-top">
+                    <div class="game-menu">
+                        <button id="game-menu-btn" class="btn btn-back game-back-btn">📱 Menu</button>
+                    </div>
+                    <div class="player-info">
+                        <div class="player-avatar">
+                            <div id="player-class-icon" class="class-icon">⚔️</div>
+                            <div id="player-level" class="level-badge">1</div>
+                        </div>
+                        <div class="player-stats">
+                            <div class="stat-bar hp-bar">
+                                <div id="hp-fill" class="bar-fill"></div>
+                                <span id="hp-text" class="bar-text">100/100</span>
+                            </div>
+                            <div class="stat-bar mp-bar">
+                                <div id="mp-fill" class="bar-fill"></div>
+                                <span id="mp-text" class="bar-text">50/50</span>
+                            </div>
+                            <div class="stat-bar exp-bar">
+                                <div id="exp-fill" class="bar-fill"></div>
+                                <span id="exp-text" class="bar-text">0/100</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="game-menu">
+                        <button id="menu-btn" class="hud-btn">⚙️</button>
+                        <button id="inventory-btn" class="hud-btn">🎒</button>
+                        <button id="character-btn" class="hud-btn">👤</button>
+                    </div>
+                </div>
+                
+                <!-- Bottom HUD -->
+                <div class="hud-bottom">
+                    <!-- Movement Joystick -->
+                    <div class="joystick-container">
+                        <div id="joystick" class="joystick">
+                            <div class="joystick-knob"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Skill Buttons -->
+                    <div class="skills-container">
+                        <button class="skill-btn" data-skill="q">
+                            <div class="skill-icon">⚔️</div>
+                            <div class="skill-cooldown"></div>
+                        </button>
+                        <button class="skill-btn" data-skill="w">
+                            <div class="skill-icon">🛡️</div>
+                            <div class="skill-cooldown"></div>
+                        </button>
+                        <button class="skill-btn" data-skill="e">
+                            <div class="skill-icon">💥</div>
+                            <div class="skill-cooldown"></div>
+                        </button>
+                        <button class="skill-btn" data-skill="r">
+                            <div class="skill-icon">✨</div>
+                            <div class="skill-cooldown"></div>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Chat -->
+                <div id="chat-panel" class="chat-panel collapsed">
+                    <div class="chat-header">
+                        <span>💬 Chat</span>
+                        <button id="chat-toggle" class="chat-toggle">▼</button>
+                    </div>
+                    <div class="chat-content">
+                        <div id="chat-messages" class="chat-messages"></div>
+                        <div class="chat-input-container">
+                            <input id="chat-input" type="text" placeholder="Scrivi messaggio...">
+                            <button id="chat-send" class="chat-send">📤</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
