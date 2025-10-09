@@ -1421,11 +1421,11 @@
                 const serverName = serverCard.querySelector('h3').textContent;
                 document.getElementById('selected-server').textContent = serverName;
                 
-                // Auto-proceed to character creation after selection (FIXED FLOW)
+                // Auto-proceed to characters after selection (like main version)
                 setTimeout(() => {
                     this.showMessage('Connesso al server!', 'success');
                     setTimeout(() => {
-                        this.showScreen('creation');
+                        this.showScreen('characters');
                     }, 1000);
                 }, 500);
             }
