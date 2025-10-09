@@ -807,8 +807,29 @@
             50% { opacity: 0.5; }
         }
 
+        @keyframes glow {
+            0%, 100% { 
+                text-shadow: 0 0 30px rgba(245, 158, 11, 0.5);
+            }
+            50% { 
+                text-shadow: 0 0 40px rgba(245, 158, 11, 0.8), 0 0 60px rgba(16, 185, 129, 0.4);
+            }
+        }
+
+        @keyframes loadingShine {
+            0% { background-position: -200px 0; }
+            100% { background-position: calc(200px + 100%) 0; }
+        }
+
         .loading-bar {
             animation: pulse 1.5s ease-in-out infinite;
+            background: linear-gradient(90deg, var(--secondary-color), var(--accent-color));
+            background-size: 200px 100%;
+            animation: loadingShine 2s ease-in-out infinite;
+        }
+
+        .game-logo h1 {
+            animation: glow 3s ease-in-out infinite;
         }
 
         /* Screen Transitions */
@@ -1272,6 +1293,11 @@
                 data.selectedCharacter = name;
                 localStorage.setItem('drakoria_data', JSON.stringify(data));
             }
+
+            static findCharacterInSlot(slot) {
+                const data = this.getData();
+                return data.characters[`slot${slot}`];
+            }
         }
 
         // UI Manager
@@ -1297,7 +1323,6 @@
                 document.querySelectorAll('.server-card').forEach(card => {
                     card.addEventListener('click', (e) => this.handleServerSelect(e));
                 });
-                document.getElementById('server-select-btn').addEventListener('click', () => this.handleServerConfirm());
                 
                 // Character slots
                 document.querySelectorAll('.character-slot').forEach(slot => {
@@ -1376,6 +1401,12 @@
             handleServerSelect(e) {
                 const serverCard = e.currentTarget;
                 const serverId = serverCard.dataset.server;
+                const serverStatus = serverCard.querySelector('.server-status').classList.contains('online');
+                
+                if (!serverStatus) {
+                    this.showMessage('Server in manutenzione', 'error');
+                    return;
+                }
                 
                 // Remove previous selection
                 document.querySelectorAll('.server-card').forEach(card => {
@@ -1386,40 +1417,44 @@
                 serverCard.classList.add('selected');
                 this.selectedServer = serverId;
                 
-                // Enable confirm button
-                document.getElementById('server-select-btn').disabled = false;
-                
                 // Update server name display
                 const serverName = serverCard.querySelector('h3').textContent;
                 document.getElementById('selected-server').textContent = serverName;
-            }
-
-            handleServerConfirm() {
-                if (this.selectedServer) {
+                
+                // Auto-proceed to characters after selection (like main version)
+                setTimeout(() => {
                     this.showMessage('Connesso al server!', 'success');
                     setTimeout(() => {
                         this.showScreen('characters');
                     }, 1000);
+                }, 500);
+            }
+
+
+
+            handleCharacterSlot(e) {
+                const slot = e.target.closest('.character-slot');
+                if (!slot) return;
+                
+                const slotNumber = parseInt(slot.dataset.slot);
+                const character = Storage.findCharacterInSlot(slotNumber);
+                
+                if (character) {
+                    // Play with existing character
+                    this.playCharacter(slotNumber, character);
+                } else {
+                    // Create new character
+                    this.selectedCharacterSlot = slotNumber;
+                    this.showScreen('creation');
                 }
             }
 
-            handleCharacterSlot(e) {
-                const slot = e.currentTarget;
-                const slotNumber = slot.dataset.slot;
+            playCharacter(slot, character) {
+                this.showMessage(`Caricamento di ${character.name}...`, 'info');
                 
-                // Check if slot is empty (creation) or has character (selection)
-                if (slot.querySelector('.slot-empty')) {
-                    // Empty slot - go to creation
-                    this.selectedCharacterSlot = slotNumber;
-                    this.showScreen('creation');
-                } else {
-                    // Has character - select for play
-                    document.querySelectorAll('.character-slot').forEach(s => s.classList.remove('selected'));
-                    slot.classList.add('selected');
-                    
-                    document.getElementById('char-play-btn').disabled = false;
-                    document.getElementById('char-delete-btn').disabled = false;
-                }
+                setTimeout(() => {
+                    this.showScreen('game');
+                }, 1000);
             }
 
             initializeCharacterCreation() {
